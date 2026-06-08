@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Gemini Imagem</title>
+</head>
+<body>
+
+    <h1>Testando o envio da Imagem para o Gemini</h1>
+
+    <form id="formImagem">
+        <p>
+            <label>Escolha a Foto:</label><br>
+            <input type="file" id="imagem" accept="image/*" required>
+        </p>
+
+        <p>
+            <label>Sua Pergunta:</label><br>
+            <input
+                type="text"
+                id="pergunta"
+                value="O que tem nessa imagem? Seja detalhista."
+                style="width:400px;"
+                required
+            >
+        </p>
+
+        <button type="submit">Enviar para a IA</button>
+    </form>
+
+    <hr>
+
+    <h3>Resposta:</h3>
+    <div id="resposta"></div>
+
+    <script>
+        document.getElementById("formImagem")
+            .addEventListener("submit", async (e) => {
+
+            e.preventDefault();
+
+            const imagem = document.getElementById("imagem").files[0];
+            const pergunta = document.getElementById("pergunta").value;
+
+            const formData = new FormData();
+            formData.append("imagem", imagem);
+            formData.append("pergunta", pergunta);
+
+            try {
+                const resposta = await fetch(
+                    "http://localhost:3000/chat/imagem",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+                const dados = await resposta.json();
+
+                document.getElementById("resposta").innerHTML =
+                    `<p>${dados.resposta}</p>`;
+
+            } catch (erro) {
+                document.getElementById("resposta").innerHTML =
+                    `<p>Erro ao enviar imagem.</p>`;
+                console.error(erro);
+            }
+        });
+    </script>
+
+</body>
+</html>
