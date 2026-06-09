@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "usuario") // Nome da tabela em minúsculo para o Postgres
+@Table(name = "usuario") 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
