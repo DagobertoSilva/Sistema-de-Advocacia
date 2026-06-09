@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Cliente {
 
+    @Column(name = "chatbot_ativo", nullable = false)
+    private Boolean chatBotAtivo = true;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_cliente")
