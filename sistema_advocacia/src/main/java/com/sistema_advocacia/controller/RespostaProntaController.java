@@ -25,7 +25,7 @@ public class RespostaProntaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RespostaPronta> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<RespostaPronta> buscarPorId(@PathVariable Integer id) {
         return respostaProntaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -38,7 +38,7 @@ public class RespostaProntaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RespostaPronta> atualizar(@PathVariable Long id, @RequestBody RespostaPronta respostaPronta) {
+    public ResponseEntity<RespostaPronta> atualizar(@PathVariable Integer id, @RequestBody RespostaPronta respostaPronta) {
         return respostaProntaService.buscarPorId(id)
                 .map(existente -> {
                     respostaPronta.setId(id);
@@ -49,7 +49,7 @@ public class RespostaProntaController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         if (respostaProntaService.buscarPorId(id).isPresent()) {
             respostaProntaService.deletarRespostaPronta(id);
             return ResponseEntity.noContent().build();

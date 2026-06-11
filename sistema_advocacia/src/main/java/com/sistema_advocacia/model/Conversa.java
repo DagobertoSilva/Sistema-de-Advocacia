@@ -10,7 +10,7 @@ public class Conversa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_conversa")
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
@@ -31,7 +31,7 @@ public class Conversa {
     public Conversa() {
     }
 
-    public Conversa(Long id, Cliente cliente, String canal, LocalDateTime dataInicio, LocalDateTime ultimaInteracao, String status) {
+    public Conversa(Integer id, Cliente cliente, String canal, LocalDateTime dataInicio, LocalDateTime ultimaInteracao, String status) {
         this.id = id;
         this.cliente = cliente;
         this.canal = canal;
@@ -40,11 +40,11 @@ public class Conversa {
         this.status = status;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

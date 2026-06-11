@@ -20,7 +20,7 @@ public class RespostaProntaService {
         return respostaProntaRepository.findAll();
     }
 
-    public Optional<RespostaPronta> buscarPorId(Long id) {
+    public Optional<RespostaPronta> buscarPorId(Integer id) {
         return respostaProntaRepository.findById(id);
     }
 
@@ -28,7 +28,10 @@ public class RespostaProntaService {
         return respostaProntaRepository.save(respostaPronta);
     }
 
-    public void deletarRespostaPronta(Long id) {
+    public void deletarRespostaPronta(Integer id) {
+        if (!respostaProntaRepository.existsById(id)) {
+            throw new RuntimeException("Resposta pronta não encontrada para o ID: " + id);
+        }
         respostaProntaRepository.deleteById(id);
     }
 }

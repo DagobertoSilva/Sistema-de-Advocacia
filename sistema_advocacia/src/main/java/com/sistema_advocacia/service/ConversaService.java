@@ -20,7 +20,7 @@ public class ConversaService {
         return conversaRepository.findAll();
     }
 
-    public Optional<Conversa> buscarPorId(Long id) {
+    public Optional<Conversa> buscarPorId(Integer id) {
         return conversaRepository.findById(id);
     }
 
@@ -32,7 +32,10 @@ public class ConversaService {
         return conversaRepository.save(conversa);
     }
 
-    public void deletarConversa(Long id) {
+    public void deletarConversa(Integer id) {
+        if (!conversaRepository.existsById(id)) {
+            throw new RuntimeException("Conversa não encontrada para o ID: " + id);
+        }
         conversaRepository.deleteById(id);
     }
 }

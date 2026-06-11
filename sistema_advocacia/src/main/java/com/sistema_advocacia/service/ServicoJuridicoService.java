@@ -20,7 +20,7 @@ public class ServicoJuridicoService {
         return servicoJuridicoRepository.findAll();
     }
 
-    public Optional<ServicoJuridico> buscarPorId(Long id) {
+    public Optional<ServicoJuridico> buscarPorId(Integer id) {
         return servicoJuridicoRepository.findById(id);
     }
 
@@ -28,7 +28,10 @@ public class ServicoJuridicoService {
         return servicoJuridicoRepository.save(servicoJuridico);
     }
 
-    public void deletarServico(Long id) {
+    public void deletarServico(Integer id) {
+        if (!servicoJuridicoRepository.existsById(id)) {
+            throw new RuntimeException("Serviço jurídico não encontrado para o ID: " + id);
+        }
         servicoJuridicoRepository.deleteById(id);
     }
 }

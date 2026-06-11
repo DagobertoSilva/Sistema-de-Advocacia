@@ -1,10 +1,14 @@
 package com.sistema_advocacia.security;
 
+import com.sistema_advocacia.model.Usuario;
+import com.sistema_advocacia.repository.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -12,14 +16,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UsuarioRepository usuarioRepository;
 
-    public JwtAuthFilter(JwtService jwtService) {
+    public JwtAuthFilter(JwtService jwtService, UsuarioRepository usuarioRepository) {
         this.jwtService = jwtService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
@@ -35,14 +43,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 username = jwtService.extractLogin(token);
             } catch (Exception e) {
-                // Token inválido ou expirado
             }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtService.validateToken(token, username)) {
+                
+                List<GrantedAuthority> authorities = new ArrayList<>();
+                
+                Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(username);
+                if (usuarioOpt.isPresent()) {
+                    Usuario usuario = usuarioOpt.get();
+                    if (usuario.getPerfilAcesso() != null) {
+                        String roleName = "ROLE_" + usuario.getPerfilAcesso().getNomePerfil().toUpperCase();
+                        authorities.add(new SimpleGrantedAuthority(roleName));
+                    }
+                }
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        username, null, new ArrayList<>()
+                        username, null, authorities
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);

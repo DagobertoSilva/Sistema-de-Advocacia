@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AtualizacaoProcessualRepository extends JpaRepository<AtualizacaoProcessual, Long> {
+public interface AtualizacaoProcessualRepository extends JpaRepository<AtualizacaoProcessual, Integer> {
 
-    List<AtualizacaoProcessual> findByContratoId(Long contratoId);
+    List<AtualizacaoProcessual> findByContratoId(Integer contratoId);
 }

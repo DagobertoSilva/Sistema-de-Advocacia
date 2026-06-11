@@ -21,11 +21,11 @@ public class DocumentoService {
         return documentoRepository.findAll();
     }
 
-    public Optional<Documento> buscarPorId(Long id) {
+    public Optional<Documento> buscarPorId(Integer id) {
         return documentoRepository.findById(id);
     }
 
-    public List<Documento> listarPorClienteId(Long clienteId) {
+    public List<Documento> listarPorClienteId(Integer clienteId) {
         return documentoRepository.findByClienteId(clienteId);
     }
 
@@ -36,7 +36,10 @@ public class DocumentoService {
         return documentoRepository.save(documento);
     }
 
-    public void deletarDocumento(Long id) {
+    public void deletarDocumento(Integer id) {
+        if (!documentoRepository.existsById(id)) {
+            throw new RuntimeException("Documento não encontrado para o ID: " + id);
+        }
         documentoRepository.deleteById(id);
     }
 }

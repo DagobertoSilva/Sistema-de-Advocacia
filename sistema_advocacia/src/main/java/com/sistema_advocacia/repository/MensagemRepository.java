@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MensagemRepository extends JpaRepository<Mensagem, Long> {
+public interface MensagemRepository extends JpaRepository<Mensagem, Integer> {
 
-    List<Mensagem> findByConversaIdOrderByDataEnvioAsc(Long conversaId);
+    List<Mensagem> findByConversaIdOrderByDataEnvioAsc(Integer conversaId);
 }

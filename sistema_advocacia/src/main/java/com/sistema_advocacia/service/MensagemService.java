@@ -9,7 +9,6 @@ import com.sistema_advocacia.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,12 +26,19 @@ public class MensagemService {
         this.clienteRepository = clienteRepository;
     }
 
-    public List<Mensagem> buscarHistoricoPorConversaId(Long conversaId) {
+    public List<Mensagem> buscarHistoricoPorConversaId(Integer conversaId) {
         return mensagemRepository.findByConversaIdOrderByDataEnvioAsc(conversaId);
     }
 
     public void processarMensagemEntrada(Map<String, Object> payload) {
-        // Lógica de recebimento do webhook e integração com bot/IA
+        String numeroWhatsapp = (String) payload.get("numeroWhatsapp");
+        String conteudo = (String) payload.get("conteudo");
+
+        if (numeroWhatsapp == null || conteudo == null) {
+            throw new IllegalArgumentException("Número do WhatsApp e conteúdo da mensagem são obrigatórios.");
+        }
+
+        enviarMensagemTexto(numeroWhatsapp, conteudo);
     }
 
     public Mensagem enviarMensagemTexto(String numeroWhatsapp, String conteudo) {
@@ -68,4 +74,22 @@ public class MensagemService {
 
         return mensagemRepository.save(mensagem);
     }
+
+    public List<Mensagem> listarPorConversaId(Integer conversaId) {
+       return buscarHistoricoPorConversaId(conversaId);
+    }
+
+    public Mensagem salvarMensagem(Mensagem mensagem) {
+        if (mensagem.getDataEnvio() == null) {
+            mensagem.setDataEnvio(LocalDateTime.now());
+        }
+        return mensagemRepository.save(mensagem);
+    }
+    public void deletarMensagem(Integer id) {
+        if (!mensagemRepository.existsById(id)) {
+            throw new RuntimeException("Mensagem não encontrada para o ID: " + id);
+        }
+        mensagemRepository.deleteById(id);
+    }
+
 }

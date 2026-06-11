@@ -22,11 +22,11 @@ public class ContratoService {
         return contratoRepository.findAll();
     }
 
-    public Optional<Contrato> buscarPorId(Long id) {
+    public Optional<Contrato> buscarPorId(Integer id) {
         return contratoRepository.findById(id);
     }
 
-    public List<Contrato> listarPorClienteId(Long clienteId) {
+    public List<Contrato> listarPorClienteId(Integer clienteId) {
         return contratoRepository.findByClienteId(clienteId);
     }
 
@@ -37,7 +37,10 @@ public class ContratoService {
         return contratoRepository.save(contrato);
     }
 
-    public void deletarContrato(Long id) {
+    public void deletarContrato(Integer id) {
+        if (!contratoRepository.existsById(id)) {
+            throw new RuntimeException("Contrato não encontrado para o ID: " + id);
+        }
         contratoRepository.deleteById(id);
     }
 

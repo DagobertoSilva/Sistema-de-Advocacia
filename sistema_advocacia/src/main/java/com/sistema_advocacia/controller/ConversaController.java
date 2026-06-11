@@ -25,7 +25,7 @@ public class ConversaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Conversa> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Conversa> buscarPorId(@PathVariable Integer id) {
         return conversaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -44,7 +44,7 @@ public class ConversaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Conversa> atualizar(@PathVariable Long id, @RequestBody Conversa conversa) {
+    public ResponseEntity<Conversa> atualizar(@PathVariable Integer id, @RequestBody Conversa conversa) {
         return conversaService.buscarPorId(id)
                 .map(existente -> {
                     conversa.setId(id);
@@ -55,7 +55,7 @@ public class ConversaController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         if (conversaService.buscarPorId(id).isPresent()) {
             conversaService.deletarConversa(id);
             return ResponseEntity.noContent().build();

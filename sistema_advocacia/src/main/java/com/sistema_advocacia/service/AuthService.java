@@ -39,6 +39,10 @@ public class AuthService {
             throw new RuntimeException("Login já está em uso");
         }
 
+        if (usuario.getPerfilAcesso() == null) {
+            throw new RuntimeException("É necessário associar um perfil de acesso ao usuário.");
+        }
+
         usuario.setSenha(cryptoService.encrypt(usuario.getSenha()));
         return usuarioRepository.save(usuario);
     }

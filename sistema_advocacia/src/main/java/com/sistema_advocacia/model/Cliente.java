@@ -38,7 +38,7 @@ public class Cliente {
     public Cliente() {
     }
 
-    // Ajustado de Long id para Integer id
+    
     public Cliente(Integer id, String nome, String numeroWhatsapp, String cpf, String grauEscolaridade, LocalDateTime dataCadastro, StatusLead statusLead, Boolean chatBotAtivo) {
         this.id = id;
         this.nome = nome;
@@ -57,12 +57,10 @@ public class Cliente {
         }
     }
 
-    // Ajustado o retorno para Integer
     public Integer getId() {
         return id;
     }
 
-    // Ajustado o parâmetro para Integer
     public void setId(Integer id) {
         this.id = id;
     }

@@ -25,7 +25,7 @@ public class TriagemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Triagem> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Triagem> buscarPorId(@PathVariable Integer id) {
         return triagemService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -38,7 +38,7 @@ public class TriagemController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Triagem> atualizar(@PathVariable Long id, @RequestBody Triagem triagem) {
+    public ResponseEntity<Triagem> atualizar(@PathVariable Integer id, @RequestBody Triagem triagem) {
         return triagemService.buscarPorId(id)
                 .map(existente -> {
                     triagem.setId(id);
@@ -49,7 +49,7 @@ public class TriagemController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         if (triagemService.buscarPorId(id).isPresent()) {
             triagemService.deletarTriagem(id);
             return ResponseEntity.noContent().build();

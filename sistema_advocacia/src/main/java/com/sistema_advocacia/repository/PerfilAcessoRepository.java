@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PerfilAcessoRepository extends JpaRepository<PerfilAcesso, Long> {
+public interface PerfilAcessoRepository extends JpaRepository<PerfilAcesso, Integer> {
 
     Optional<PerfilAcesso> findByNomePerfil(String nomePerfil);
 }

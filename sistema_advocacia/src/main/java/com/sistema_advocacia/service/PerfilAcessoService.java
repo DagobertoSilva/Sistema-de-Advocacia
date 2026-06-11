@@ -20,7 +20,7 @@ public class PerfilAcessoService {
         return perfilAcessoRepository.findAll();
     }
 
-    public Optional<PerfilAcesso> buscarPorId(Long id) {
+    public Optional<PerfilAcesso> buscarPorId(Integer id) {
         return perfilAcessoRepository.findById(id);
     }
 
@@ -32,7 +32,10 @@ public class PerfilAcessoService {
         return perfilAcessoRepository.save(perfilAcesso);
     }
 
-    public void deletarPerfil(Long id) {
+    public void deletarPerfil(Integer id) {
+        if (!perfilAcessoRepository.existsById(id)) {
+            throw new RuntimeException("Perfil de acesso não encontrado para o ID: " + id);
+        }
         perfilAcessoRepository.deleteById(id);
     }
 }

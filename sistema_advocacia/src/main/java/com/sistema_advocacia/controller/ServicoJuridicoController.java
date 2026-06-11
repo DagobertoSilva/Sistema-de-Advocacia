@@ -25,7 +25,7 @@ public class ServicoJuridicoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ServicoJuridico> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ServicoJuridico> buscarPorId(@PathVariable Integer id) {
         return servicoJuridicoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -38,7 +38,7 @@ public class ServicoJuridicoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ServicoJuridico> atualizar(@PathVariable Long id, @RequestBody ServicoJuridico servicoJuridico) {
+    public ResponseEntity<ServicoJuridico> atualizar(@PathVariable Integer id, @RequestBody ServicoJuridico servicoJuridico) {
         return servicoJuridicoService.buscarPorId(id)
                 .map(existente -> {
                     servicoJuridico.setId(id);
@@ -49,7 +49,7 @@ public class ServicoJuridicoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         if (servicoJuridicoService.buscarPorId(id).isPresent()) {
             servicoJuridicoService.deletarServico(id);
             return ResponseEntity.noContent().build();

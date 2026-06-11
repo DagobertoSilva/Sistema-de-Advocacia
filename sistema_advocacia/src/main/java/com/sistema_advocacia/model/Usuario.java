@@ -9,7 +9,7 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_perfil")
@@ -35,7 +35,7 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(Long id, PerfilAcesso perfilAcesso, String nome, String login, String senha, String telefone, Boolean ativo, String role) {
+    public Usuario(Integer id, PerfilAcesso perfilAcesso, String nome, String login, String senha, String telefone, Boolean ativo, String role) {
         this.id = id;
         this.perfilAcesso = perfilAcesso;
         this.nome = nome;
@@ -46,11 +46,11 @@ public class Usuario {
         this.role = role;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

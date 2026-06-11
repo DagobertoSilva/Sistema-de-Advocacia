@@ -11,7 +11,7 @@ public class Contrato {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_contrato")
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
@@ -32,7 +32,7 @@ public class Contrato {
     public Contrato() {
     }
 
-    public Contrato(Long id, Cliente cliente, LocalDateTime dataFechamento, String statusContrato, BigDecimal valorHonorarios, String observacoes) {
+    public Contrato(Integer id, Cliente cliente, LocalDateTime dataFechamento, String statusContrato, BigDecimal valorHonorarios, String observacoes) {
         this.id = id;
         this.cliente = cliente;
         this.dataFechamento = dataFechamento;
@@ -48,11 +48,11 @@ public class Contrato {
         }
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

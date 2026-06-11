@@ -9,7 +9,7 @@ public class PerfilAcesso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_perfil")
-    private Long id;
+    private Integer id;
 
     @Column(name = "nome_perfil", nullable = false, length = 50)
     private String nomePerfil;
@@ -20,17 +20,17 @@ public class PerfilAcesso {
     public PerfilAcesso() {
     }
 
-    public PerfilAcesso(Long id, String nomePerfil, String descricao) {
+    public PerfilAcesso(Integer id, String nomePerfil, String descricao) {
         this.id = id;
         this.nomePerfil = nomePerfil;
         this.descricao = descricao;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

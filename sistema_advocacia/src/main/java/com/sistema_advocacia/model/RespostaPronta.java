@@ -10,7 +10,7 @@ public class RespostaPronta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_resposta")
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario", nullable = false)
@@ -31,7 +31,7 @@ public class RespostaPronta {
     public RespostaPronta() {
     }
 
-    public RespostaPronta(Long id, Usuario usuario, String titulo, String categoria, String conteudo, LocalDateTime dataCriacao) {
+    public RespostaPronta(Integer id, Usuario usuario, String titulo, String categoria, String conteudo, LocalDateTime dataCriacao) {
         this.id = id;
         this.usuario = usuario;
         this.titulo = titulo;
@@ -47,11 +47,11 @@ public class RespostaPronta {
         }
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

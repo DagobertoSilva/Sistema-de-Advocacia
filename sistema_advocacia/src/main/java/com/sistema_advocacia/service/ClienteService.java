@@ -23,7 +23,6 @@ public class ClienteService {
         return clienteRepository.findAll();
     }
 
-    // Mudado de Long para Integer
     public Optional<Cliente> buscarPorId(Integer id) {
         return clienteRepository.findById(id);
     }
@@ -39,8 +38,10 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
-    // Mudado de Long para Integer
     public void deletarCliente(Integer id) {
+        if (!clienteRepository.existsById(id)) {
+            throw new RuntimeException("Cliente não encontrado para o ID: " + id);
+        }
         clienteRepository.deleteById(id);
     }
 

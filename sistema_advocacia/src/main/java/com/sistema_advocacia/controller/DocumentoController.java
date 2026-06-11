@@ -25,14 +25,14 @@ public class DocumentoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Documento> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Documento> buscarPorId(@PathVariable Integer id) {
         return documentoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/cliente/{clienteId}")
-    public ResponseEntity<List<Documento>> listarPorCliente(@PathVariable Long clienteId) {
+    public ResponseEntity<List<Documento>> listarPorCliente(@PathVariable Integer clienteId) {
         List<Documento> lista = documentoService.listarPorClienteId(clienteId);
         return ResponseEntity.ok(lista);
     }
@@ -44,7 +44,7 @@ public class DocumentoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Documento> atualizar(@PathVariable Long id, @RequestBody Documento documento) {
+    public ResponseEntity<Documento> atualizar(@PathVariable Integer id, @RequestBody Documento documento) {
         return documentoService.buscarPorId(id)
                 .map(existente -> {
                     documento.setId(id);
@@ -55,7 +55,7 @@ public class DocumentoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         if (documentoService.buscarPorId(id).isPresent()) {
             documentoService.deletarDocumento(id);
             return ResponseEntity.noContent().build();

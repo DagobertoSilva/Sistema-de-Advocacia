@@ -10,7 +10,7 @@ public class Triagem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_triagem")
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
@@ -20,7 +20,7 @@ public class Triagem {
     private String descricaoCaso;
 
     @Column(name = "urgencia", length = 50)
-    private String nivelUrgencia; // Alterado de urgencia para nivelUrgencia
+    private String nivelUrgencia;
 
     @Column(name = "crime_destaque", length = 100)
     private String crimeDestaque;
@@ -31,7 +31,7 @@ public class Triagem {
     public Triagem() {
     }
 
-    public Triagem(Long id, Cliente cliente, String descricaoCaso, String nivelUrgencia, String crimeDestaque, LocalDateTime dataTriagem) {
+    public Triagem(Integer id, Cliente cliente, String descricaoCaso, String nivelUrgencia, String crimeDestaque, LocalDateTime dataTriagem) {
         this.id = id;
         this.cliente = cliente;
         this.descricaoCaso = descricaoCaso;
@@ -47,11 +47,11 @@ public class Triagem {
         }
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

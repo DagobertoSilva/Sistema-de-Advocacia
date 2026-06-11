@@ -9,7 +9,7 @@ public class ServicoJuridico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_servico")
-    private Long id;
+    private Integer id;
 
     @Column(name = "nome_servico", nullable = false, length = 100)
     private String nomeServico;
@@ -20,17 +20,17 @@ public class ServicoJuridico {
     public ServicoJuridico() {
     }
 
-    public ServicoJuridico(Long id, String nomeServico, String descricao) {
+    public ServicoJuridico(Integer id, String nomeServico, String descricao) {
         this.id = id;
         this.nomeServico = nomeServico;
         this.descricao = descricao;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

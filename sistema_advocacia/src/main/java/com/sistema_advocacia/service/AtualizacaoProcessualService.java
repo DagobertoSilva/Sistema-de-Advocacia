@@ -21,11 +21,11 @@ public class AtualizacaoProcessualService {
         return atualizacaoProcessualRepository.findAll();
     }
 
-    public Optional<AtualizacaoProcessual> buscarPorId(Long id) {
+    public Optional<AtualizacaoProcessual> buscarPorId(Integer id) {
         return atualizacaoProcessualRepository.findById(id);
     }
 
-    public List<AtualizacaoProcessual> listarPorContratoId(Long contratoId) {
+    public List<AtualizacaoProcessual> listarPorContratoId(Integer contratoId) {
         return atualizacaoProcessualRepository.findByContratoId(contratoId);
     }
 
@@ -36,7 +36,12 @@ public class AtualizacaoProcessualService {
         return atualizacaoProcessualRepository.save(atualizacaoProcessual);
     }
 
-    public void deletarAtualizacao(Long id) {
+    public void deletarAtualizacao(Integer id) {
+        if (!atualizacaoProcessualRepository.existsById(id)) {
+            throw new RuntimeException("Atualização processual não encontrada para o ID: " + id); 
+        }
         atualizacaoProcessualRepository.deleteById(id);
     }
+
+    
 }

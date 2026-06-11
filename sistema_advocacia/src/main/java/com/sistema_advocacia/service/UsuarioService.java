@@ -23,7 +23,7 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    public Optional<Usuario> buscarPorId(Long id) {
+    public Optional<Usuario> buscarPorId(Integer id) {
         return usuarioRepository.findById(id);
     }
 
@@ -38,7 +38,10 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public void deletarUsuario(Long id) {
+    public void deletarUsuario(Integer id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuário não encontrado para o ID: " + id);
+        }
         usuarioRepository.deleteById(id);
     }
 }

@@ -21,7 +21,7 @@ public class TriagemService {
         return triagemRepository.findAll();
     }
 
-    public Optional<Triagem> buscarPorId(Long id) {
+    public Optional<Triagem> buscarPorId(Integer id) {
         return triagemRepository.findById(id);
     }
 
@@ -32,7 +32,10 @@ public class TriagemService {
         return triagemRepository.save(triagem);
     }
 
-    public void deletarTriagem(Long id) {
+    public void deletarTriagem(Integer id) {
+        if (!triagemRepository.existsById(id)) {
+            throw new RuntimeException("Triagem não encontrada para o ID: " + id);
+        }
         triagemRepository.deleteById(id);
     }
 }

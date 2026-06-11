@@ -10,17 +10,16 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
-public interface TriagemRepository extends JpaRepository<Triagem, Long> {
+public interface TriagemRepository extends JpaRepository<Triagem, Integer> {
 
     List<Triagem> findByNivelUrgencia(String nivelUrgencia);
 
     Optional<Triagem> findByClienteId(Integer clienteId);
 
-    long countByNivelUrgencia(String nivelUrgencia);
+    Integer countByNivelUrgencia(String nivelUrgencia);
 
-    @Query(value = "SELECT COALESCE(s.nome_servico, t.crime_imputado, 'Outros') as tipo, COUNT(t.id_triagem) as quantidade " +
+    @Query(value = "SELECT COALESCE(t.crime_destaque, 'Outros') as tipo, COUNT(t.id_triagem) as quantidade " +
                    "FROM triagem t " +
-                   "LEFT JOIN servicojuridico s ON t.id_servico = s.id_servico " +
-                   "GROUP BY COALESCE(s.nome_servico, t.crime_imputado, 'Outros')", nativeQuery = true)
+                   "GROUP BY COALESCE(t.crime_destaque, 'Outros')", nativeQuery = true)
     List<Map<String, Object>> obterDistribuicaoPorCrimeOuServico();
 }

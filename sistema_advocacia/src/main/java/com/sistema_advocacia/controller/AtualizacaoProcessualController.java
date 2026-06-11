@@ -25,14 +25,14 @@ public class AtualizacaoProcessualController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AtualizacaoProcessual> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<AtualizacaoProcessual> buscarPorId(@PathVariable Integer id) {
         return atualizacaoProcessualService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/contrato/{contratoId}")
-    public ResponseEntity<List<AtualizacaoProcessual>> listarPorContrato(@PathVariable Long contratoId) {
+    public ResponseEntity<List<AtualizacaoProcessual>> listarPorContrato(@PathVariable Integer contratoId) {
         List<AtualizacaoProcessual> lista = atualizacaoProcessualService.listarPorContratoId(contratoId);
         return ResponseEntity.ok(lista);
     }
@@ -44,7 +44,7 @@ public class AtualizacaoProcessualController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AtualizacaoProcessual> atualizar(@PathVariable Long id, @RequestBody AtualizacaoProcessual atualizacaoProcessual) {
+    public ResponseEntity<AtualizacaoProcessual> atualizar(@PathVariable Integer id, @RequestBody AtualizacaoProcessual atualizacaoProcessual) {
         return atualizacaoProcessualService.buscarPorId(id)
                 .map(existente -> {
                     atualizacaoProcessual.setId(id);
@@ -55,7 +55,7 @@ public class AtualizacaoProcessualController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         if (atualizacaoProcessualService.buscarPorId(id).isPresent()) {
             atualizacaoProcessualService.deletarAtualizacao(id);
             return ResponseEntity.noContent().build();

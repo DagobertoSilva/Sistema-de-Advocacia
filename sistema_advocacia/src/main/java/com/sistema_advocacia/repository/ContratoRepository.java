@@ -9,9 +9,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public interface ContratoRepository extends JpaRepository<Contrato, Long> {
+public interface ContratoRepository extends JpaRepository<Contrato, Integer> {
 
-    List<Contrato> findByClienteId(Long clienteId);
+    List<Contrato> findByClienteId(Integer clienteId);
 
     @Query("SELECT COALESCE(SUM(c.valorHonorarios), 0) FROM Contrato c")
     BigDecimal calcularFaturamentoTotal();

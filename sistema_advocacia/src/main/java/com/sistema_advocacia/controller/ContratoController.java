@@ -25,14 +25,14 @@ public class ContratoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Contrato> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Contrato> buscarPorId(@PathVariable Integer id) {
         return contratoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/cliente/{clienteId}")
-    public ResponseEntity<List<Contrato>> listarPorCliente(@PathVariable Long clienteId) {
+    public ResponseEntity<List<Contrato>> listarPorCliente(@PathVariable Integer clienteId) {
         List<Contrato> lista = contratoService.listarPorClienteId(clienteId);
         return ResponseEntity.ok(lista);
     }
@@ -44,7 +44,7 @@ public class ContratoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Contrato> atualizar(@PathVariable Long id, @RequestBody Contrato contrato) {
+    public ResponseEntity<Contrato> atualizar(@PathVariable Integer id, @RequestBody Contrato contrato) {
         return contratoService.buscarPorId(id)
                 .map(existente -> {
                     contrato.setId(id);
@@ -55,7 +55,7 @@ public class ContratoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         if (contratoService.buscarPorId(id).isPresent()) {
             contratoService.deletarContrato(id);
             return ResponseEntity.noContent().build();

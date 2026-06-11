@@ -10,7 +10,7 @@ public class Documento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_documento")
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
@@ -31,7 +31,7 @@ public class Documento {
     public Documento() {
     }
 
-    public Documento(Long id, Cliente cliente, String nomeArquivo, String tipoDocumento, String urlArquivo, LocalDateTime dataUpload) {
+    public Documento(Integer id, Cliente cliente, String nomeArquivo, String tipoDocumento, String urlArquivo, LocalDateTime dataUpload) {
         this.id = id;
         this.cliente = cliente;
         this.nomeArquivo = nomeArquivo;
@@ -47,11 +47,11 @@ public class Documento {
         }
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

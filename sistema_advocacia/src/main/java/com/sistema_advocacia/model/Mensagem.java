@@ -10,7 +10,7 @@ public class Mensagem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_mensagem")
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_conversa", nullable = false)
@@ -37,7 +37,7 @@ public class Mensagem {
     public Mensagem() {
     }
 
-    public Mensagem(Long id, Conversa conversa, String remetente, String tipoMensagem, String conteudo, String transcricaoAudio, LocalDateTime dataEnvio, String statusProcessamentoIa) {
+    public Mensagem(Integer id, Conversa conversa, String remetente, String tipoMensagem, String conteudo, String transcricaoAudio, LocalDateTime dataEnvio, String statusProcessamentoIa) {
         this.id = id;
         this.conversa = conversa;
         this.remetente = remetente;
@@ -55,11 +55,11 @@ public class Mensagem {
         }
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

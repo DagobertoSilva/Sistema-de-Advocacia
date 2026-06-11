@@ -10,7 +10,7 @@ public class AtualizacaoProcessual {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_atualizacao")
-    private Long id;
+    private Integer id;  
 
     @ManyToOne
     @JoinColumn(name = "id_contrato", nullable = false)
@@ -25,7 +25,7 @@ public class AtualizacaoProcessual {
     public AtualizacaoProcessual() {
     }
 
-    public AtualizacaoProcessual(Long id, Contrato contrato, String descricao, LocalDateTime dataAtualizacao) {
+    public AtualizacaoProcessual(Integer id, Contrato contrato, String descricao, LocalDateTime dataAtualizacao) { 
         this.id = id;
         this.contrato = contrato;
         this.descricao = descricao;
@@ -39,11 +39,11 @@ public class AtualizacaoProcessual {
         }
     }
 
-    public Long getId() {
+    public Integer getId() { 
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) { 
         this.id = id;
     }
 

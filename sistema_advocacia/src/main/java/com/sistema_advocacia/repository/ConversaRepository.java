@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface ConversaRepository extends JpaRepository<Conversa, Long> {
+public interface ConversaRepository extends JpaRepository<Conversa, Integer> {
 
     List<Conversa> findByStatus(String status);
 
     List<Conversa> findByClienteId(Integer clienteId);
 
-    long countByStatus(String status);
+    Integer countByStatus(String status);
 
     @Query("SELECT new map(" +
            "SUM(CASE WHEN c.status = 'Fechada' THEN 1 ELSE 0 END) as resolvidos, " +
