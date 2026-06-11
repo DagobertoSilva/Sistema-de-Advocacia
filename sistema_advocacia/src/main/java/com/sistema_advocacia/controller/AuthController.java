@@ -1,54 +1,51 @@
 package com.sistema_advocacia.controller;
 
 import com.sistema_advocacia.model.Usuario;
-import com.sistema_advocacia.repository.UsuarioRepository;
-import com.sistema_advocacia.security.CryptoService;
-import com.sistema_advocacia.security.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sistema_advocacia.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final AuthService authService;
 
-    @Autowired
-    private CryptoService cryptoService;
-
-    @Autowired
-    private JwtService jwtService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
-        String email = loginData.get("email");
-        String senha = loginData.get("senha");
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> loginRequest) {
+        String login = loginRequest.get("login");
+        String senha = loginRequest.get("senha");
 
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(email);
-
-        if (usuarioOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get();
-
-            if (cryptoService.validarSenha(senha, usuario.getSenha())) {
-                
-                String token = jwtService.gerarToken(usuario.getLogin());
-
-                Map<String, Object> resposta = new HashMap<>();
-                resposta.put("token", token);
-                resposta.put("login", usuario.getLogin());
-
-                return ResponseEntity.ok(resposta);
-            }
+        try {
+            String token = authService.autenticar(login, senha);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("tipo", "Bearer");
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, String> erroResponse = new HashMap<>();
+            erroResponse.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erroResponse);
         }
+    }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("erro", "E-mail ou senha inválidos"));
+    @PostMapping("/cadastro")
+    public ResponseEntity<?> registrar(@RequestBody Usuario usuario) {
+        try {
+            Usuario novoUsuario = authService.registrar(usuario);
+            return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
+        } catch (RuntimeException e) {
+            Map<String, String> erroResponse = new HashMap<>();
+            erroResponse.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
+        }
     }
 }

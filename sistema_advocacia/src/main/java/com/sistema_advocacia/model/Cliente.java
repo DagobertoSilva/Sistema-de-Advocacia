@@ -2,23 +2,16 @@ package com.sistema_advocacia.model;
 
 import com.sistema_advocacia.model.Enum.StatusLead; 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cliente")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Cliente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_cliente")
-    private Long id;
+    private Integer id;
 
     @Column(nullable = false, length = 100)
     private String nome;
@@ -39,13 +32,94 @@ public class Cliente {
     @Column(name = "status_lead")
     private StatusLead statusLead = StatusLead.Em_triagem;
 
-    @Column(name = "chatbot_ativo", nullable = false)
+    @Column(name = "chatbot_ativo", nullable = true)
     private Boolean chatBotAtivo = true;
+
+    public Cliente() {
+    }
+
+    // Ajustado de Long id para Integer id
+    public Cliente(Integer id, String nome, String numeroWhatsapp, String cpf, String grauEscolaridade, LocalDateTime dataCadastro, StatusLead statusLead, Boolean chatBotAtivo) {
+        this.id = id;
+        this.nome = nome;
+        this.numeroWhatsapp = numeroWhatsapp;
+        this.cpf = cpf;
+        this.grauEscolaridade = grauEscolaridade;
+        this.dataCadastro = dataCadastro;
+        this.statusLead = statusLead;
+        this.chatBotAtivo = chatBotAtivo;
+    }
 
     @PrePersist
     protected void onCreate() {
         if (this.dataCadastro == null) {
             this.dataCadastro = LocalDateTime.now();
         }
+    }
+
+    // Ajustado o retorno para Integer
+    public Integer getId() {
+        return id;
+    }
+
+    // Ajustado o parâmetro para Integer
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getNumeroWhatsapp() {
+        return numeroWhatsapp;
+    }
+
+    public void setNumeroWhatsapp(String numeroWhatsapp) {
+        this.numeroWhatsapp = numeroWhatsapp;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    public String getGrauEscolaridade() {
+        return grauEscolaridade;
+    }
+
+    public void setGrauEscolaridade(String grauEscolaridade) {
+        this.grauEscolaridade = grauEscolaridade;
+    }
+
+    public LocalDateTime getDataCadastro() {
+        return dataCadastro;
+    }
+
+    public void setDataCadastro(LocalDateTime dataCadastro) {
+        this.dataCadastro = dataCadastro;
+    }
+
+    public StatusLead getStatusLead() {
+        return statusLead;
+    }
+
+    public void setStatusLead(StatusLead statusLead) {
+        this.statusLead = statusLead;
+    }
+
+    public Boolean getChatBotAtivo() {
+        return chatBotAtivo;
+    }
+
+    public void setChatBotAtivo(Boolean chatBotAtivo) {
+        this.chatBotAtivo = chatBotAtivo;
     }
 }

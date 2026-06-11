@@ -5,6 +5,5 @@ public enum StatusLead {
     Emergencia_max,
     Aguardando_retorno,
     Contrato_fechado,
-    Encerrado;
+    Encerrado
 }
-
