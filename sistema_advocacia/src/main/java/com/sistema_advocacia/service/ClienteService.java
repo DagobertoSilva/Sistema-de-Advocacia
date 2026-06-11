@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-
+import java.util.Map;
 @Service
 public class ClienteService {
 
@@ -51,5 +51,24 @@ public class ClienteService {
                 org.springframework.http.HttpStatus.NOT_FOUND, "Cliente não encontrado"));
         cliente.setChatBotAtivo(ativo);
         return clienteRepository.save(cliente);
+    }
+
+    
+    public Map<String, Object> obterDadosDashboard() {
+        Map<String, Object> dados = new java.util.HashMap<>();
+        
+        dados.put("totalLeads", clienteRepository.count());
+        dados.put("leadsAtivosChatbot", clienteRepository.countByChatBotAtivoTrue());
+        dados.put("emTriagem", clienteRepository.countByStatusLead(StatusLead.Em_triagem));
+        
+        Map<String, Long> statusDistribuicao = new java.util.HashMap<>();
+        for (StatusLead status : StatusLead.values()) {
+            statusDistribuicao.put(status.name(), clienteRepository.countByStatusLead(status));
+        }
+        dados.put("distribuicaoStatus", statusDistribuicao);
+
+        dados.put("evolucaoLeads", clienteRepository.buscarEvolucaoLeads());
+
+        return dados;
     }
 }

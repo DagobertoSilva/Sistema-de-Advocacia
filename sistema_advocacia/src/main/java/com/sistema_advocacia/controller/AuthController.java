@@ -29,14 +29,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
         String email = loginData.get("email");
-        String senate = loginData.get("senha");
+        String senha = loginData.get("senha");
 
         Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(email);
 
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
 
-            if (cryptoService.validarSenha(senate, usuario.getSenha())) {
+            if (cryptoService.validarSenha(senha, usuario.getSenha())) {
                 
                 String token = jwtService.gerarToken(usuario.getLogin());
 

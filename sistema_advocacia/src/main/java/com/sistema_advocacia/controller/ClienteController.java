@@ -17,6 +17,13 @@ public class ClienteController {
     @Autowired
     private ClienteService clienteService;
 
+    // Adicione este endpoint dentro da classe ClienteController
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<Map<String, Object>> obterDadosDashboard() {
+        return ResponseEntity.ok(clienteService.obterDadosDashboard());
+    }
+
     // Rota que lista todos os leads/clientes no painel do advogado
     @GetMapping
     public List<Cliente> listarTodos() {
