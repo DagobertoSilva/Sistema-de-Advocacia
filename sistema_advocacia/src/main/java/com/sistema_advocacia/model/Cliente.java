@@ -15,9 +15,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Cliente {
 
-    @Column(name = "chatbot_ativo", nullable = false)
-    private Boolean chatBotAtivo = true;
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_cliente")
@@ -41,6 +38,9 @@ public class Cliente {
     @Enumerated(EnumType.STRING)
     @Column(name = "status_lead")
     private StatusLead statusLead = StatusLead.Em_triagem;
+
+    @Column(name = "chatbot_ativo", nullable = false)
+    private Boolean chatBotAtivo = true;
 
     @PrePersist
     protected void onCreate() {

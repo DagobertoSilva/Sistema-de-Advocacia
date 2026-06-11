@@ -38,7 +38,8 @@ public class ClienteService {
     // Atualiza o status do cliente 
     public Cliente atualizarStatus(Long id, StatusLead novoStatus) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "Cliente não encontrado"));
         cliente.setStatusLead(novoStatus);
         return clienteRepository.save(cliente);
     }
@@ -46,7 +47,8 @@ public class ClienteService {
     // O Advogado clica no botão da tela e o backend desliga o robô para esse cliente
     public Cliente alternarChatBot(Long id, Boolean ativo) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "Cliente não encontrado"));
         cliente.setChatBotAtivo(ativo);
         return clienteRepository.save(cliente);
     }
