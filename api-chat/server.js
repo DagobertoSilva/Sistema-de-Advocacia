@@ -1,51 +1,81 @@
+require("dotenv").config();
+
 const express = require("express");
 const multer = require("multer");
-const { GoogleGenAI } = require("@google/genai");
+const Groq = require("groq-sdk");
 
 const app = express();
+
 app.use(express.json());
 app.use(express.static("public"));
 
-const upload = multer({ storage: multer.memoryStorage() });
-
-//Esta SEM A CHAVE DA APIKEY, POIS NÃO PODE SUBIR COM A CHAVE PARA O GITHUB
-const ia = new GoogleGenAI({
-    apiKey: "",
+const upload = multer({
+    storage: multer.memoryStorage(),
 });
 
-//HISTORICO DE CONVERSA COM UM CLIENTE
+// Cliente da Groq
+const ia = new Groq({
+    apiKey: process.env.GROQ_API_KEY,
+});
+
+// Histórico da conversa
 const historico = [];
 
-//ROTA DE TEXTO
+// =======================
+// ROTA DE TEXTO
+// =======================
+
 app.post("/chat/texto", async (req, res) => {
     try {
         const { pergunta } = req.body;
-        const response = await ia.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: pergunta,
+
+        const resposta = await ia.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                {
+                    role: "user",
+                    content: pergunta,
+                },
+            ],
         });
 
-        res.status(200).json({ resposta: response.text });
-    } catch (error){
-        console.error(error);
-        res.status(500).json({ erro: "Erro na comunicação com a IA." });
+        res.status(200).json({
+    resposta: resposta.choices[0].message.content,
+    });
+
+    } catch (erro) {
+        console.error(erro);
+
+        res.status(500).json({
+            erro: "Erro ao comunicar com a IA.",
+        });
     }
 });
 
-//ROTA DE TRIAGEM
+// =======================
+// TRIAGEM
+// =======================
+
 app.post("/chat/triagem", async (req, res) => {
+
     try {
 
         const { mensagem } = req.body;
 
-        historico.push(`Cliente: ${mensagem}`);
+        historico.push({
+            role: "user",
+            content: mensagem,
+        });
 
-        const prompt = `
+        const mensagens = [
+            {
+                role: "system",
+                content: `
 Você é uma assistente virtual de um escritório de advocacia criminal.
 
-Faça apenas uma pergunta por vez.
+Faça apenas UMA pergunta por vez.
 
-Informações necessárias:
+Colete:
 
 - Nome
 - Tipo do caso
@@ -54,73 +84,74 @@ Informações necessárias:
 - Onde está preso?
 - Há quanto tempo está preso?
 
-Quando terminar a coleta, informe que a triagem foi concluída.
-`;
+Quando todas as informações forem coletadas, informe que a triagem foi concluída.
+                `,
+            },
 
-        const conversaCompleta = `
-${prompt}
+            ...historico,
+        ];
 
-${historico.join("\n")}
-`;
-
-        const response = await ia.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: conversaCompleta
+        const resposta = await ia.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: mensagens,
         });
 
-        historico.push(`IA: ${response.text}`);
+        historico.push({
+            role: "assistant",
+            content: resposta.choices[0].message.content,
+        });
 
         res.status(200).json({
-            resposta: response.text
+    resposta: resposta.choices[0].message.content,
+    });
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        res.status(500).json({
+            erro: "Erro na triagem.",
         });
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            erro: "Erro na triagem."
-        });
     }
+
 });
 
-//LIMPAR HISTORICO
+// =======================
+// LIMPAR HISTÓRICO
+// =======================
+
 app.post("/chat/limpar", (req, res) => {
 
     historico.length = 0;
 
     res.json({
-        mensagem: "Histórico apagado."
+        mensagem: "Histórico apagado.",
     });
 
 });
 
-//ROTA DE IMAGEM
+// =======================
+// IMAGEM
+// =======================
+
+// Atenção:
+// Nem todos os modelos da Groq aceitam imagens.
+// Se sua conta não suportar visão computacional,
+// esta rota retornará erro.
+
 app.post("/chat/imagem", upload.single("imagem"), async (req, res) => {
-    try{
-        const imagemBuffer = req.file.buffer;
-        const tipoImagem = req.file.mimetype;
-        const pergunta = req.body.pergunta;
 
+    res.status(501).json({
+        erro: "O modelo configurado atualmente não possui suporte a imagens.",
+    });
 
-        const response = await ia.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: [
-                {
-                    inlineData: {
-                        data: imagemBuffer.toString("base64"),
-                        mimeType: tipoImagem,
-                    },
-                },
-                pergunta,
-            ],
-        });
-
-      res.status(200).json({ resposta: response.text });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ erro: "Erro ao processar a imagem." });
-    }
 });
 
+// =======================
+
 app.listen(3000, () => {
-    console.log("Servidor do Gemini rodando na porta 3000!")
+
+    console.log("Servidor da Groq rodando na porta 3000!");
+
 });
