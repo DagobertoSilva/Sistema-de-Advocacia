@@ -1,0 +1,32 @@
+<h1>Teste de Triagem Jurídica</h1>
+
+<input type="text" id="mensagem">
+<button onclick="enviar()">Enviar</button>
+
+<div id="resposta"></div>
+
+<script>
+async function enviar() {
+
+    const mensagem =
+        document.getElementById("mensagem").value;
+
+    const resposta = await fetch(
+        "/chat/triagem",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                mensagem
+            })
+        }
+    );
+
+    const dados = await resposta.json();
+
+    document.getElementById("resposta").innerHTML =
+        dados.resposta;
+}
+</script>
