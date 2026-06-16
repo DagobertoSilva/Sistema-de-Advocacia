@@ -30,19 +30,25 @@ public class ChatApiService {
                 .build();
     }
 
-    public ResponseEntity<Map<String, Object>> enviarMensagemTriagem(String mensagem) {
-        return postJson("/chat/triagem", Map.of("mensagem", mensagem));
+    public ResponseEntity<Map<String, Object>> enviarMensagemTriagem(Integer idCliente, String mensagem) {
+        return postJson("/chat/triagem", Map.of(
+                "idCliente", idCliente,
+                "mensagem", mensagem
+        ));
     }
 
-    public ResponseEntity<Map<String, Object>> enviarPerguntaTexto(String pergunta) {
-        return postJson("/chat/texto", Map.of("pergunta", pergunta));
+    public ResponseEntity<Map<String, Object>> enviarPerguntaTexto(Integer idCliente, String pergunta) {
+        return postJson("/chat/texto", Map.of(
+                "idCliente", idCliente,
+                "pergunta", pergunta
+        ));
     }
 
-    public ResponseEntity<Map<String, Object>> limparHistorico() {
-        return postJson("/chat/limpar", Map.<String, String>of());
+    public ResponseEntity<Map<String, Object>> limparHistorico(Integer idCliente) {
+        return postJson("/chat/limpar", Map.of("idCliente", idCliente));
     }
 
-    private ResponseEntity<Map<String, Object>> postJson(String uri, Map<String, String> payload) {
+    private ResponseEntity<Map<String, Object>> postJson(String uri, Map<String, Object> payload) {
         try {
             ResponseEntity<Map<String, Object>> response = restClient.post()
                     .uri(uri)

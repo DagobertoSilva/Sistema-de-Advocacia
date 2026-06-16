@@ -23,9 +23,17 @@ services:
       context: ./api-chat
     container_name: advocacia_api_chat
     environment:
-      GROQ_API_KEY: chave_api
+      GROQ_API_KEY: chave
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: sistema_advocacia
+      DB_USER: admin
+      DB_PASSWORD: adminpassword
     ports:
       - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   api-advocacia:

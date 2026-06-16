@@ -1,5 +1,6 @@
-<h1>Teste de Triagem Jurídica</h1>
+<h1>Teste de Triagem Juridica</h1>
 
+<input type="number" id="idCliente" placeholder="ID do cliente">
 <input type="text" id="mensagem">
 <button onclick="enviar()">Enviar</button>
 
@@ -7,7 +8,8 @@
 
 <script>
 async function enviar() {
-
+    const idCliente =
+        Number(document.getElementById("idCliente").value);
     const mensagem =
         document.getElementById("mensagem").value;
 
@@ -19,6 +21,7 @@ async function enviar() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
+                idCliente,
                 mensagem
             })
         }
@@ -27,6 +30,6 @@ async function enviar() {
     const dados = await resposta.json();
 
     document.getElementById("resposta").innerHTML =
-        dados.resposta;
+        dados.resposta || dados.erro;
 }
 </script>

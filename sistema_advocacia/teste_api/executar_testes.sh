@@ -126,6 +126,135 @@ if [ "$HTTP_STATUS" != "200" ]; then
 fi
 echo ""
 
+echo ""
 echo "=================================================="
-echo "TESTES FINALIZADOS"
+echo "5. TESTANDO ISOLAMENTO DE CONVERSAS COM MULTIPLOS CLIENTES"
+echo "=================================================="
+
+criar_cliente() {
+  local nome="$1"
+  local cpf="$2"
+  local whatsapp="$3"
+
+  BODY=$(cat <<JSON
+{
+  "nome": "$nome",
+  "cpf": "$cpf",
+  "numeroWhatsapp": "$whatsapp",
+  "grauEscolaridade": "Ensino Medio"
+}
+JSON
+)
+
+  request POST "$BASE_URL/api/clientes" "$BODY" "Authorization: Bearer $TOKEN"
+
+  if [ "$HTTP_STATUS" != "201" ]; then
+    echo "ERRO ao criar cliente $nome"
+    echo "HTTP: $HTTP_STATUS"
+    echo "BODY: $HTTP_BODY"
+    return 1
+  fi
+
+  echo "$HTTP_BODY" | grep -o '"id":[0-9]*' | head -1 | cut -d':' -f2
+}
+
+BASE_TESTE=$(date +%s)
+
+ID_JOAO=$(criar_cliente \
+  "Joao Silva" \
+  "111${BASE_TESTE: -8}" \
+  "5588111${BASE_TESTE: -6}")
+
+ID_MARIA=$(criar_cliente \
+  "Maria Oliveira" \
+  "222${BASE_TESTE: -8}" \
+  "5588222${BASE_TESTE: -6}")
+
+ID_CARLOS=$(criar_cliente \
+  "Carlos Pereira" \
+  "333${BASE_TESTE: -8}" \
+  "5588333${BASE_TESTE: -6}")
+
+echo ""
+echo "Clientes criados:"
+echo "Joao   -> $ID_JOAO"
+echo "Maria  -> $ID_MARIA"
+echo "Carlos -> $ID_CARLOS"
+
+if [ -z "$ID_JOAO" ] || [ -z "$ID_MARIA" ] || [ -z "$ID_CARLOS" ]; then
+  echo ""
+  echo "Falha ao criar clientes de teste."
+  exit 1
+fi
+
+echo ""
+echo "========== JOAO =========="
+
+request POST "$BASE_URL/api/chat/triagem" "{
+  \"idCliente\": $ID_JOAO,
+  \"mensagem\": \"Meu nome e Joao Silva e fui preso por porte ilegal de arma.\"
+}"
+
+echo "Pergunta 1:"
+echo "$HTTP_BODY"
+
+request POST "$BASE_URL/api/chat/triagem" "{
+  \"idCliente\": $ID_JOAO,
+  \"mensagem\": \"Qual e o meu nome e qual foi meu problema?\"
+}"
+
+echo "Pergunta 2:"
+echo "$HTTP_BODY"
+
+echo ""
+echo "========== MARIA =========="
+
+request POST "$BASE_URL/api/chat/triagem" "{
+  \"idCliente\": $ID_MARIA,
+  \"mensagem\": \"Meu nome e Maria Oliveira e estou sendo investigada por estelionato.\"
+}"
+
+echo "Pergunta 1:"
+echo "$HTTP_BODY"
+
+request POST "$BASE_URL/api/chat/triagem" "{
+  \"idCliente\": $ID_MARIA,
+  \"mensagem\": \"Qual e o meu nome e qual investigacao mencionei?\"
+}"
+
+echo "Pergunta 2:"
+echo "$HTTP_BODY"
+
+echo ""
+echo "========== CARLOS =========="
+
+request POST "$BASE_URL/api/chat/triagem" "{
+  \"idCliente\": $ID_CARLOS,
+  \"mensagem\": \"Meu nome e Carlos Pereira e fui acusado de violencia domestica.\"
+}"
+
+echo "Pergunta 1:"
+echo "$HTTP_BODY"
+
+request POST "$BASE_URL/api/chat/triagem" "{
+  \"idCliente\": $ID_CARLOS,
+  \"mensagem\": \"Qual acusacao eu mencionei?\"
+}"
+
+echo "Pergunta 2:"
+echo "$HTTP_BODY"
+
+echo ""
+echo "========== TESTE DE VAZAMENTO =========="
+
+request POST "$BASE_URL/api/chat/triagem" "{
+  \"idCliente\": $ID_JOAO,
+  \"mensagem\": \"Quem e Maria Oliveira?\"
+}"
+
+echo "$HTTP_BODY"
+
+echo ""
+echo "=================================================="
+echo "FIM DOS TESTES"
 echo "=================================================="

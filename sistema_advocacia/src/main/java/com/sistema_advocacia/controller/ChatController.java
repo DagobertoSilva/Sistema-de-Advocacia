@@ -20,29 +20,72 @@ public class ChatController {
     }
 
     @PostMapping("/triagem")
-    public ResponseEntity<Map<String, Object>> triagem(@RequestBody Map<String, String> request) {
-        String mensagem = request.get("mensagem");
+    public ResponseEntity<Map<String, Object>> triagem(@RequestBody Map<String, Object> request) {
+        Integer idCliente = obterIdCliente(request);
+        String mensagem = obterTexto(request, "mensagem");
+
+        if (idCliente == null) {
+            return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'idCliente' e obrigatorio."));
+        }
 
         if (mensagem == null || mensagem.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'mensagem' e obrigatorio."));
         }
 
-        return chatApiService.enviarMensagemTriagem(mensagem);
+        return chatApiService.enviarMensagemTriagem(idCliente, mensagem);
     }
 
     @PostMapping("/texto")
-    public ResponseEntity<Map<String, Object>> texto(@RequestBody Map<String, String> request) {
-        String pergunta = request.get("pergunta");
+    public ResponseEntity<Map<String, Object>> texto(@RequestBody Map<String, Object> request) {
+        Integer idCliente = obterIdCliente(request);
+        String pergunta = obterTexto(request, "pergunta");
+
+        if (idCliente == null) {
+            return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'idCliente' e obrigatorio."));
+        }
 
         if (pergunta == null || pergunta.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'pergunta' e obrigatorio."));
         }
 
-        return chatApiService.enviarPerguntaTexto(pergunta);
+        return chatApiService.enviarPerguntaTexto(idCliente, pergunta);
     }
 
     @PostMapping("/limpar")
-    public ResponseEntity<Map<String, Object>> limpar() {
-        return chatApiService.limparHistorico();
+    public ResponseEntity<Map<String, Object>> limpar(@RequestBody Map<String, Object> request) {
+        Integer idCliente = obterIdCliente(request);
+
+        if (idCliente == null) {
+            return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'idCliente' e obrigatorio."));
+        }
+
+        return chatApiService.limparHistorico(idCliente);
+    }
+
+    private Integer obterIdCliente(Map<String, Object> request) {
+        Object valor = request.get("idCliente");
+
+        if (valor == null) {
+            valor = request.get("id_cliente");
+        }
+
+        if (valor instanceof Number numero) {
+            return numero.intValue();
+        }
+
+        if (valor instanceof String texto && !texto.isBlank()) {
+            try {
+                return Integer.parseInt(texto);
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    private String obterTexto(Map<String, Object> request, String campo) {
+        Object valor = request.get(campo);
+        return valor == null ? null : valor.toString();
     }
 }
