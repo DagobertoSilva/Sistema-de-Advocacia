@@ -2,6 +2,7 @@ package com.sistema_advocacia.service;
 
 import com.sistema_advocacia.model.Cliente;
 import com.sistema_advocacia.repository.ClienteRepository;
+import com.sistema_advocacia.model.Enum.StatusLead;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -66,5 +67,9 @@ public class ClienteService {
         resultado.put("dados", dadosRaw);
         
         return resultado;
+    }
+
+    public List<Cliente> buscarClientesTriados() {
+        return clienteRepository.findByStatusLead(StatusLead.Aguardando_retorno);
     }
 }

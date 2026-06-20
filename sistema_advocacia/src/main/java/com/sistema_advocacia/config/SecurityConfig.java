@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login", "/api/auth/cadastro").permitAll()
                 .requestMatchers("/api/whatsapp/webhook").permitAll()
                 .requestMatchers("/api/chat/**").permitAll()
+                .requestMatchers("/api/clientes/relatorios/triagens").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

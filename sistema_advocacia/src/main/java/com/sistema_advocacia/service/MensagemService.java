@@ -69,11 +69,13 @@ public class MensagemService {
                 if (corpoResposta != null && corpoResposta.containsKey("resposta")) {
                     String respostaEfetiva = (String) corpoResposta.get("resposta");
                     
-                    respostaDoBot = ""; 
+                    respostaDoBot = respostaEfetiva; 
                 } else {
                     respostaDoBot = "Triagem concluída. O advogado analisará o caso em breve.";
                 }
                 conversa.setStatus("TRIAGEM_CONCLUIDA");
+                cliente.setStatusLead(StatusLead.Aguardando_retorno); 
+                clienteRepository.save(cliente); 
             } catch (Exception e) {
                 respostaDoBot = "Desculpe, nosso sistema de triagem está indisponível no momento. Um advogado assumirá o atendimento.";
                 conversa.setStatus("TRIAGEM_ERRO");
@@ -166,5 +168,14 @@ public class MensagemService {
         mensagem.setTipoMensagem("Texto");
         mensagem.setDataEnvio(LocalDateTime.now());
         return mensagemRepository.save(mensagem);
+    }
+
+    public List<Mensagem> listarPorCliente(Long idCliente) {
+        Optional<Cliente> clienteOpt = clienteService.buscarPorId(idCliente.intValue());
+        if (clienteOpt.isPresent()) {
+            Conversa conversa = obterOuCriarConversaAtiva(clienteOpt.get());
+            return mensagemRepository.findByConversaIdOrderByDataEnvioAsc(conversa.getId());
+        }
+        return List.of();
     }
 }

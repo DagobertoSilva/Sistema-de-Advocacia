@@ -1,15 +1,20 @@
 package com.sistema_advocacia.controller;
 
 import com.sistema_advocacia.model.Cliente;
+import com.sistema_advocacia.model.Mensagem;
 import com.sistema_advocacia.service.ChatApiService;
 import com.sistema_advocacia.service.ClienteService;
+import com.sistema_advocacia.service.MensagemService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -17,10 +22,12 @@ public class ChatController {
 
     private final ChatApiService chatApiService;
     private final ClienteService clienteService;
-
-    public ChatController(ChatApiService chatApiService, ClienteService clienteService) {
+    private final MensagemService mensagemService;
+    
+    public ChatController(ChatApiService chatApiService, ClienteService clienteService, MensagemService mensagemService) {
         this.chatApiService = chatApiService;
         this.clienteService = clienteService;
+        this.mensagemService = mensagemService; // <-- ADICIONE ESTA LINHA
     }
 
     @PostMapping("/triagem")
@@ -99,5 +106,10 @@ public class ChatController {
     private String obterTexto(Map<String, Object> request, String campo) {
         Object valor = request.get(campo);
         return valor == null ? null : valor.toString();
+    }
+
+    @GetMapping("/clientes/{id}/mensagens")
+    public ResponseEntity<List<Mensagem>> buscarHistorico(@PathVariable Long id) {
+        return ResponseEntity.ok(mensagemService.listarPorCliente(id));
     }
 }

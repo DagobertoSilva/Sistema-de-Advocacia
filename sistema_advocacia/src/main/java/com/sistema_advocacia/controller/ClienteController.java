@@ -56,4 +56,9 @@ public class ClienteController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/relatorios/triagens")
+    public ResponseEntity<List<Cliente>> buscarTriagensConcluidas() {
+        return ResponseEntity.ok(clienteService.buscarClientesTriados());
+    }
 }
