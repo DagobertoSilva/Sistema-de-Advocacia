@@ -31,6 +31,16 @@ public class ClienteService {
         return clienteRepository.findByNumeroWhatsapp(numeroWhatsapp).orElse(null);
     }
 
+    public Cliente buscarOuCriarPorNumero(String numeroWhatsapp) {
+        return clienteRepository.findByNumeroWhatsapp(numeroWhatsapp)
+                .orElseGet(() -> {
+                    Cliente novoCliente = new Cliente();
+                    novoCliente.setNumeroWhatsapp(numeroWhatsapp);
+                    novoCliente.setNome("Novo Lead - Whats");
+                    return clienteRepository.save(novoCliente);
+                });
+    }
+
     public Cliente salvarCliente(Cliente cliente) {
         if (cliente.getDataCadastro() == null) {
             cliente.setDataCadastro(LocalDateTime.now());

@@ -1,6 +1,8 @@
 package com.sistema_advocacia.controller;
 
+import com.sistema_advocacia.model.Cliente;
 import com.sistema_advocacia.service.ChatApiService;
+import com.sistema_advocacia.service.ClienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,9 +16,11 @@ import java.util.Map;
 public class ChatController {
 
     private final ChatApiService chatApiService;
+    private final ClienteService clienteService;
 
-    public ChatController(ChatApiService chatApiService) {
+    public ChatController(ChatApiService chatApiService, ClienteService clienteService) {
         this.chatApiService = chatApiService;
+        this.clienteService = clienteService;
     }
 
     @PostMapping("/triagem")
@@ -25,7 +29,7 @@ public class ChatController {
         String mensagem = obterTexto(request, "mensagem");
 
         if (idCliente == null) {
-            return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'idCliente' e obrigatorio."));
+            return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'idCliente' ou 'numero_whatsapp' e obrigatorio."));
         }
 
         if (mensagem == null || mensagem.isBlank()) {
@@ -41,7 +45,7 @@ public class ChatController {
         String pergunta = obterTexto(request, "pergunta");
 
         if (idCliente == null) {
-            return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'idCliente' e obrigatorio."));
+            return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'idCliente' ou 'numero_whatsapp' e obrigatorio."));
         }
 
         if (pergunta == null || pergunta.isBlank()) {
@@ -56,13 +60,21 @@ public class ChatController {
         Integer idCliente = obterIdCliente(request);
 
         if (idCliente == null) {
-            return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'idCliente' e obrigatorio."));
+            return ResponseEntity.badRequest().body(Map.of("erro", "O campo 'idCliente' ou 'numero_whatsapp' e obrigatorio."));
         }
 
         return chatApiService.limparHistorico(idCliente);
     }
 
     private Integer obterIdCliente(Map<String, Object> request) {
+        Object numeroWhatsappObj = request.get("numero_whatsapp");
+        
+        if (numeroWhatsappObj != null && !numeroWhatsappObj.toString().isBlank()) {
+            String numeroWhatsapp = numeroWhatsappObj.toString();
+            Cliente cliente = clienteService.buscarOuCriarPorNumero(numeroWhatsapp);
+            return cliente.getId();
+        }
+
         Object valor = request.get("idCliente");
 
         if (valor == null) {

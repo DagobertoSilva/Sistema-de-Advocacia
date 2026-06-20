@@ -1,5 +1,6 @@
 package com.sistema_advocacia.controller;
 
+import com.sistema_advocacia.service.MensagemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/whatsapp")
 public class WhatsappController {
+
+    private final MensagemService mensagemService;
+
+    public WhatsappController(MensagemService mensagemService) {
+        this.mensagemService = mensagemService;
+    }
 
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> obterStatus() {
@@ -45,6 +52,7 @@ public class WhatsappController {
 
     @PostMapping("/webhook")
     public ResponseEntity<Void> receberDadosWebhook(@RequestBody Map<String, Object> payload) {
+        mensagemService.processarMensagemEntrada(payload);
         return ResponseEntity.ok().build();
     }
 }
