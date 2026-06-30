@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import TabelaCasos from "./components/TabelaCasos";
@@ -5,63 +6,66 @@ import Login from "./components/Login";
 import AtendimentosMes from "./components/AtendimentosMes";
 import DistribuicaoCasos from "./components/DistribuicaoCasos";
 import DesempenhoChatbot from "./components/DesempenhoChatbot";
+import Conversas from "./components/Conversas";
 import "./App.css";
 
 function App() {
- /* return (
-    <div className="container">
-      <Sidebar />
-      <main className="content">
-        <Header />
-        <TabelaCasos />
-      </main>
-    </div>
-  );*/   // Descomentar para chamar a página cliente
+  const [telaAtiva, setTelaAtiva] = useState("relatorios");
 
-  //Chamando a página do Login
-  //return <Login />;
- 
-  /*return (
-      /*<div className="container">
-      <Sidebar />
-      <main className="content">
-        <Header />
-        <div style={{ padding: "30px", background: "#f5f5f5" }}>
-      <AtendimentosMes />
-    </div>
-      </main>
-    </div>
-  );*/
+  const [sidebarAberta, setSidebarAberta] = useState(true);
 
-  //chamaando Relatorios
+
   return (
-    <div className="container">
-      <Sidebar />
+    <div className={`container ${sidebarAberta ? 'sidebar-visivel' : 'sidebar-recolhida'}`}>
+
+      <Sidebar setTelaAtiva={setTelaAtiva} telaAtiva={telaAtiva} sidebarAberta={sidebarAberta} setSidebarAberta={setSidebarAberta} />
+
       <main className="content">
         <Header />
-        <div style={{ padding: "30px", background: "#f5f5f5" }}>
-      <AtendimentosMes />
-    </div>
+        {telaAtiva === "relatorios" && (
+          <>
+            <div style={{ padding: "30px", background: "#f5f5f5" }}>
+              <AtendimentosMes />
+            </div>
 
-    <div
-      style={{
-        padding: "30px",
-        background: "#f5f5f5",
-        minHeight: "100vh",
-      }}
-    >
-      <DistribuicaoCasos />
-    </div>
+            <div style={{ padding: "30px", background: "#f5f5f5", minHeight: "100vh" }}>
+              <DistribuicaoCasos />
+            </div>
 
-    <div>
-      <DesempenhoChatbot />
-    </div>
+            <div>
+              <DesempenhoChatbot />
+            </div>
+          </>
+        )}
+
+        {/* TELA 2: CONVERSAS (Nossa nova tela de Resumos de IA) */}
+        {telaAtiva === "conversas" && (
+          <Conversas />
+        )}
+
+        {telaAtiva === "clientes" && (
+          <div style={{ padding: "30px", color: "#6b7280", textAlign: "center" }}>
+            <h2>Tela de Clientes</h2>
+            <p>Esta funcionalidade está sendo desenvolvida pelo time.</p>
+          </div>
+        )}
+
+        {telaAtiva === "prioridades" && (
+          <div style={{ padding: "30px", color: "#6b7280", textAlign: "center" }}>
+            <h2>Tela de Prioridades</h2>
+            <p>Esta funcionalidade está sendo desenvolvida pelo time.</p>
+          </div>
+        )}
+
+        {telaAtiva === "configuracoes" && (
+          <div style={{ padding: "30px", color: "#6b7280", textAlign: "center" }}>
+            <h2>Configurações</h2>
+            <p>Esta funcionalidade está sendo desenvolvida pelo time.</p>
+          </div>
+        )}
       </main>
     </div>
   );
-
-
-
 }
 
 export default App;
