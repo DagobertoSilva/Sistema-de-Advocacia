@@ -75,6 +75,7 @@ public class MensagemService {
                 }
                 conversa.setStatus("TRIAGEM_CONCLUIDA");
                 cliente.setStatusLead(StatusLead.Aguardando_retorno); 
+                cliente.setChatBotAtivo(false);
                 clienteRepository.save(cliente); 
             } catch (Exception e) {
                 respostaDoBot = "Desculpe, nosso sistema de triagem está indisponível no momento. Um advogado assumirá o atendimento.";
