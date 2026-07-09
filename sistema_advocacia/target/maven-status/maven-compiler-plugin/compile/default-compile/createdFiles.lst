@@ -45,7 +45,6 @@ com/sistema_advocacia/model/Mensagem.class
 com/sistema_advocacia/service/ConversaService.class
 com/sistema_advocacia/repository/UsuarioRepository.class
 com/sistema_advocacia/controller/DocumentoController.class
-com/sistema_advocacia/controller/DashboardController.class
 com/sistema_advocacia/service/PerfilAcessoService.class
 com/sistema_advocacia/controller/ContratoController.class
 com/sistema_advocacia/controller/WhatsappController.class

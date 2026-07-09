@@ -31,6 +31,8 @@ public class DashboardController {
 
         resposta.put("totalClientes", clienteRepository.count());
         resposta.put("totalTriagens", triagemRepository.count());
+        resposta.put("conversasEmAndamento", conversaRepository.count());
+        resposta.put("conversasEncerradas", 0);
 
         List<Map<String, Object>> dadosMensais = new ArrayList<>();
         dadosMensais.add(Map.of("mes", "Jan", "atendimentos", 45));
@@ -53,5 +55,22 @@ public class DashboardController {
         resposta.put("eficienciaBot", eficienciaBot);
 
         return ResponseEntity.ok(resposta);
+    }
+
+    @GetMapping("/casos-prioridade")
+    public ResponseEntity<List<Map<String, Object>>> obterCasosPrioridade() {
+        List<Map<String, Object>> lista = new ArrayList<>();
+        
+        triagemRepository.findAll().forEach(triagem -> {
+            Map<String, Object> caso = new HashMap<>();
+            caso.put("cliente", triagem.getCliente() != null ? triagem.getCliente().getNome() : "Desconhecido");
+            caso.put("assunto", "Triagem em Andamento");
+            caso.put("urgencia", "ALTA");
+            caso.put("data", "Recentemente"); 
+            caso.put("status", "Em Andamento");
+            lista.add(caso);
+        });
+
+        return ResponseEntity.ok(lista);
     }
 }

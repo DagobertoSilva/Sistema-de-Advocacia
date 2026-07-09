@@ -51,7 +51,7 @@ function App() {
         sidebarAberta={sidebarAberta} 
         setSidebarAberta={setSidebarAberta} 
       />
-      <main className="content">
+      <main className={`content ${telaAtiva === "conversas" || telaAtiva === "dashboard" ? "content-conversas-limpo" : ""}`}>
         <Header />
         {renderizarPagina()}
       </main>

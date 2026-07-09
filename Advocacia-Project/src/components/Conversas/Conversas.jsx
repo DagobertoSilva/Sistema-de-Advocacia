@@ -1,214 +1,210 @@
 import React, { useState, useEffect } from "react";
-import { MessageSquare, FileText, Calendar, ShieldAlert, Copy, Check } from "lucide-react";
+import { MessageSquare, User, Clock, AlertCircle } from "lucide-react";
 import "./Conversas.css";
 
 const UTILIZAR_BACKEND_REAL = true;
 
-// MOCK
-const mockClientes = [
-    { id: 1, nome: "João Silva", area: "Direito Trabalhista", urgencia: "Alta", data: "Hoje" },
-    { id: 2, nome: "Maria Oliveira", area: "Direito de Família", urgencia: "Normal", data: "Ontem" },
-    { id: 3, nome: "Carlos Souza", area: "Direito Civil", urgencia: "Alta", data: "28/06/2026" }
-];
-
-const mockResumos = {
-    1: {
-        contexto: "Cliente relata demissão sem justa causa e falta de pagamento de horas extras nos últimos 2 anos.",
-        pontosChave: ["Trabalho noturno sem adicional", "Férias vencidas não pagas", "Testemunhas disponíveis"],
-        documentos: "Contrato de trabalho, holerites (últimos 6 meses), registro de ponto.",
-        proximaAcao: "Preparar petição inicial para reclamação trabalhista."
-    },
-    2: {
-        contexto: "Processo de divórcio litigioso e disputa de guarda de menores.",
-        pontosChave: ["Desacordo sobre pensão alimentícia", "Bens a partilhar (imóvel e carro)"],
-        documentos: "Certidão de casamento, certidão de nascimento dos filhos, escritura do imóvel.",
-        proximaAcao: "Agendar reunião para mediação de acordo antes da audiência."
-    },
-    3: {
-        contexto: "Disputa contratual por prestação de serviços não concluída por empreiteira.",
-        pontosChave: ["Atraso de 4 meses na obra", "Pagamento de 70% já efetuado", "Danos materiais relatados"],
-        documentos: "Contrato de prestação de serviços, comprovantes de PIX, fotos da obra inacabada.",
-        proximaAcao: "Enviar notificação extrajudicial para a empreiteira."
-    }
-};
-
-
 export default function Conversas() {
-    const [clientes, setClientes] = useState([]);
+    const [conversas, setConversas] = useState([]);
+    const [conversasFiltradas, setConversasFiltradas] = useState([]);
+    const [termoPesquisa, setTermoPesquisa] = useState("");
     const [clienteSelecionado, setClienteSelecionado] = useState(null);
-    const [resumoIA, setResumoIA] = useState(null);
-    const [carregandoClientes, setCarregandoClientes] = useState(true);
-    const [carregandoResumo, setCarregandoResumo] = useState(false);
-    const [copiado, setCopiado] = useState(false);
-
-    const API_BASE_URL = "http://localhost:8080/api";
-
+    const [historicoMensagens, setHistoricoMensagens] = useState([]);
+    const [carregandoMensagens, setCarregandoMensagens] = useState(false);
 
     useEffect(() => {
-        setCarregandoClientes(true);
         if (UTILIZAR_BACKEND_REAL) {
-            fetch(`${API_BASE_URL}/clientes`)
-                .then((res) => {
-                    if (!res.ok) throw new Error("Erro ao buscar clientes");
-                    return res.json();
-                })
+            fetch("http://localhost:8080/api/conversas")
+                .then((res) => res.json())
                 .then((data) => {
-                    const lista = Array.isArray(data) ? data : data.content || [];
-                    setClientes(lista);
-                    if (lista.length > 0) setClienteSelecionado(lista[0]);
+                    const formatadas = data.map((conv) => {
+                        let nomeOriginal = conv.cliente?.nome || "";
+                        let nomeLimpo = `Lead #${conv.cliente?.id || conv.id}`;
+
+                        if (nomeOriginal && nomeOriginal !== "Novo Lead - Whats" && !nomeOriginal.startsWith("Lead #")) {
+                            let textoTratado = nomeOriginal;
+                            let textoMinusculo = textoTratado.toLowerCase();
+
+                            if (textoMinusculo.includes("meu nome é")) {
+                                textoTratado = textoTratado.substring(textoMinusculo.indexOf("meu nome é") + 10).trim();
+                            } else if (textoMinusculo.includes("meu nome e")) {
+                                textoTratado = textoTratado.substring(textoMinusculo.indexOf("meu nome e") + 10).trim();
+                            } else if (textoMinusculo.includes("me chamo")) {
+                                textoTratado = textoTratado.substring(textoMinusculo.indexOf("me chamo") + 8).trim();
+                            }
+
+                            if (textoTratado.includes(".")) textoTratado = textoTratado.split(".")[0].trim();
+                            if (textoTratado.includes(",")) textoTratado = textoTratado.split(",")[0].trim();
+
+                            let palavras = textoTratado.split(/\s+/);
+                            if (palavras.length > 0) {
+                                nomeLimpo = palavras[0];
+                                if (palavras.length > 1) {
+                                    nomeLimpo += " " + palavras[1];
+                                }
+                            }
+                        }
+
+                        return {
+                            id: conv.id,
+                            id_cliente: conv.cliente?.id || conv.id,
+                            nome: nomeLimpo,
+                            whatsapp: conv.cliente?.numeroWhatsapp || "Sem número",
+                            area: "Triagem Chatbot",
+                            urgencia: conv.cliente?.statusLead === "Emergencia_max" ? "Alta" : "Normal",
+                            data: conv.dataInicio ? new Date(conv.dataInicio).toLocaleDateString("pt-BR") : "Recente"
+                        };
+                    });
+                    setConversas(formatadas);
+                    setConversasFiltradas(formatadas);
                 })
-                .catch((err) => console.error("Erro no fetch de clientes:", err))
-                .finally(() => setCarregandoClientes(false));
-        } else {
-            // Usando mock
-            setTimeout(() => {
-                setClientes(mockClientes);
-                if (mockClientes.length > 0) setClienteSelecionado(mockClientes[0]);
-                setCarregandoClientes(false);
-            }, 800);
+                .catch((err) => console.error("Erro ao buscar conversas:", err));
         }
     }, []);
 
-    useEffect(() => {
-        const idCliente = clienteSelecionado?.id;
-        if (!idCliente) return;
-
-        setCarregandoResumo(true);
-        setResumoIA(null);
-
-        if (UTILIZAR_BACKEND_REAL) {
-            fetch(`${API_BASE_URL}/conversas/cliente/${idCliente}`)
-                .then((res) => {
-                    if (!res.ok) {
-                        return fetch(`${API_BASE_URL}/chat/resumo/${idCliente}`).then(r => r.json());
-                    }
-                    return res.json();
-                })
-                .then((data) => setResumoIA(data))
-                .catch((err) => console.error("Erro ao buscar o resumo da IA:", err))
-                .finally(() => setCarregandoResumo(false));
-        } else {
-            setTimeout(() => {
-                setResumoIA(mockResumos[idCliente] || null);
-                setCarregandoResumo(false);
-            }, 600);
-        }
-    }, [clienteSelecionado]);
-
-    const lidarComCopia = () => {
-        if (!resumoIA || !clienteSelecionado) return;
-        const textoResumo = `
-            Resumo de Atendimento Jurídico
-            Cliente: ${clienteSelecionado.nome} (${clienteSelecionado.area || "Geral"})
-            Contexto: ${resumoIA.contexto || resumoIA.contextoGeral || ""}
-            Documentos citados: ${resumoIA.documentos || ""}
-        `.trim();
-
-        navigator.clipboard.writeText(textoResumo);
-        setCopiado(true);
-        setTimeout(() => setCopiado(false), 2000);
+    const handlePesquisaChange = (e) => {
+        const valor = e.target.value;
+        setTermoPesquisa(valor);
+        
+        const filtradas = conversas.filter((cliente) =>
+            cliente.nome.toLowerCase().includes(valor.toLowerCase()) ||
+            cliente.whatsapp.includes(valor)
+        );
+        setConversasFiltradas(filtradas);
     };
 
-    const extrairPontosChave = (dados) => {
-        if (!dados) return [];
-        const pontos = dados.pontosChave || dados.pontos_chave || dados.pontosImportantes || dados.conteudo;
-        if (Array.isArray(pontos)) return pontos;
-        if (typeof pontos === "string") return pontos.split("\n").filter(p => p.trim() !== "");
-        return [];
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            const filtradas = conversas.filter((cliente) =>
+                cliente.nome.toLowerCase().includes(termoPesquisa.toLowerCase()) ||
+                cliente.whatsapp.includes(termoPesquisa)
+            );
+            setConversasFiltradas(filtradas);
+        }
+    };
+
+    const handleSelecionarCliente = (cliente) => {
+        if (clienteSelecionado && clienteSelecionado.id === cliente.id) {
+            setClienteSelecionado(null);
+            setHistoricoMensagens([]);
+            return;
+        }
+
+        setClienteSelecionado(cliente);
+        setCarregandoMensagens(true);
+
+        fetch(`http://localhost:8080/api/chat/clientes/${cliente.id_cliente}/mensagens`)
+            .then((res) => res.json())
+            .then((mensagens) => {
+                setHistoricoMensagens(mensagens);
+                setCarregandoMensagens(false);
+            })
+            .catch((err) => {
+                console.error("Erro ao buscar mensagens reais:", err);
+                setHistoricoMensagens([]);
+                setCarregandoMensagens(false);
+            });
     };
 
     return (
         <div className="conversas-container">
             <div className="sidebar-conversas">
-                <div className="sidebar-header">
-                    <h2>Histórico de Conversas</h2>
-                    <p>Resumos integrados (IA)</p>
+                <div className="search-bar-container">
+                    <input
+                        type="text"
+                        className="busca-input-sidebar"
+                        placeholder="Buscar por nome ou WhatsApp..."
+                        value={termoPesquisa}
+                        onChange={handlePesquisaChange}
+                        onKeyDown={handleKeyDown}
+                    />
                 </div>
 
+                <div className="sidebar-header">
+                    <h2>Mensagens e Casos</h2>
+                    <p>{conversasFiltradas.length} interações encontradas</p>
+                </div>
                 <div className="lista-clientes">
-                    {carregandoClientes ? (
-                        <div className="status-container">Carregando clientes...</div>
-                    ) : clientes.length === 0 ? (
-                        <div className="status-container">Nenhum cliente encontrado.</div>
-                    ) : (
-                        clientes.map((c) => {
-                            const id = c.id || c.id_cliente;
-                            const nome = c.nome || "Cliente Sem Nome";
-                            const area = c.area || c.tipoCaso || "Geral";
-                            const urgencia = c.urgencia || c.prioridade || "Normal";
-                            const dataExibicao = c.data || c.dataCriacao || "Recente";
-
-                            return (
-                                <div
-                                    key={id}
-                                    className={`item-cliente ${clienteSelecionado?.id === id ? "ativo" : ""}`}
-                                    onClick={() => setClienteSelecionado(c)}
-                                >
-                                    <div className="card-cliente-linha">
-                                        <span className="cliente-nome">{nome}</span>
-                                        <span className="cliente-data">{dataExibicao}</span>
-                                    </div>
-                                    <div className="cliente-sublinha">
-                                        <span className="cliente-area">{area}</span>
-                                        <span className={`badge-status ${urgencia.toLowerCase() === "alta" || urgencia.toLowerCase() === "altamente urgente" ? "badge-urgente" : "badge-normal"}`}>
-                                            {urgencia}
-                                        </span>
-                                    </div>
+                    {conversasFiltradas.map((cliente) => (
+                        <div
+                            key={cliente.id}
+                            className={`item-cliente ${clienteSelecionado?.id === cliente.id ? "active" : ""}`}
+                            onClick={() => handleSelecionarCliente(cliente)}
+                        >
+                            <div className="cliente-header">
+                                <div className="cliente-identificacao">
+                                    <span className="cliente-nome">{cliente.nome}</span>
+                                    <span className="cliente-whatsapp">{cliente.whatsapp}</span>
                                 </div>
-                            );
-                        })
-                    )}
+                                <span className="cliente-data">{cliente.data}</span>
+                            </div>
+                            <div className="cliente-info-secundaria">
+                                <span className="cliente-area">{cliente.area}</span>
+                                <span className={`badge-urgencia ${cliente.urgencia === "Alta" ? "alta" : "normal"}`}>
+                                    {cliente.urgencia}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            <div className="painel-resumo">
-                {carregandoResumo ? (
-                    <div className="status-container">Carregando resumo da IA...</div>
-                ) : resumoIA ? (
-                    <>
-                        <div className="painel-header">
-                            <div>
-                                <h1>{clienteSelecionado?.nome || "Cliente"}</h1>
-                                <div className="painel-meta">
-                                    <span>{clienteSelecionado?.area || clienteSelecionado?.tipoCaso || "Geral"}</span>
-                                    <span>{clienteSelecionado?.data || "Histórico"}</span>
+            <div className="conteudo-conversas">
+                {carregandoMensagens ? (
+                    <div className="status-container loader">
+                        <div className="spinner"></div>
+                        <p>Carregando histórico do WhatsApp...</p>
+                    </div>
+                ) : clienteSelecionado ? (
+                    <div className="chat-real-wrapper">
+                        <div className="conversa-header-detalhe">
+                            <div className="user-profile-summary">
+                                <div className="avatar-placeholder">
+                                    <User size={22} className="text-blue-600" />
+                                </div>
+                                <div>
+                                    <h2>{clienteSelecionado.nome}</h2>
+                                    <p>WhatsApp: {clienteSelecionado.whatsapp} | Linha do Tempo da Triagem</p>
                                 </div>
                             </div>
-                            <button className="btn-copiar" onClick={lidarComCopia}>
-                                {copiado ? <><Check size={16} style={{ marginRight: 6 }} /> Copiado</> : <><Copy size={16} style={{ marginRight: 6 }} /> Copiar Resumo</>}
-                            </button>
                         </div>
 
-                        <div className="conteudo-resumo">
-                            <div className="bloco-contexto">
-                                <h3>Contexto Geral do Atendimento</h3>
-                                <p>{resumoIA.contexto || resumoIA.contextoGeral || resumoIA.descricao || "Nenhum contexto gerado para esta conversa."}</p>
-                            </div>
-
-                            <div className="secao-pontos">
-                                <h3>Pontos Importantes Coletados</h3>
-                                <ul>
-                                    {extrairPontosChave(resumoIA).length > 0 ? (
-                                        extrairPontosChave(resumoIA).map((ponto, idx) => <li key={idx}>{ponto}</li>)
-                                    ) : (
-                                        <li>Nenhum ponto de destaque extraído.</li>
-                                    )}
-                                </ul>
-                            </div>
-
-                            <div className="bloco-documentos">
-                                <h3>Documentos Citados/Disponíveis</h3>
-                                <p>{resumoIA.documentos || resumoIA.documentosDisponiveis || "Nenhum documento anexado ou citado nesta conversa."}</p>
-                            </div>
-
-                            <div className="bloco-acao">
-                                <h3>Próxima Ação Sugerida</h3>
-                                <p>{resumoIA.proximaAcao || resumoIA.proxima_acao || "Aguardando definição da próxima etapa processual."}</p>
-                            </div>
+                        <div className="historico-chat-box">
+                            {historicoMensagens.length > 0 ? (
+                                historicoMensagens.map((msg, idx) => {
+                                    const remetenteTexto = (msg.remetente || msg.tipo || "").toUpperCase();
+                                    const IsCliente = remetenteTexto === "CLIENTE";
+                                    
+                                    return (
+                                        <div key={idx} className={`chat-row ${IsCliente ? "row-cliente" : "row-bot"}`}>
+                                            <div className="mensagem-wrapper">
+                                                <span className="remetente-identificador">
+                                                    {IsCliente ? clienteSelecionado.nome : "Assistente Virtual"}
+                                                </span>
+                                                <div className="balao-mensagem">
+                                                    <p>{msg.conteudo || msg.texto || msg.mensagem}</p>
+                                                    <span className="chat-hora">
+                                                        <Clock size={10} /> {msg.dataEnvio ? new Date(msg.dataEnvio).toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'}) : "Agora"}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="sem-mensagens">
+                                    <AlertCircle size={32} />
+                                    <p>Nenhuma mensagem de texto registrada para este lead nas tabelas de histórico.</p>
+                                </div>
+                            )}
                         </div>
-                    </>
+                    </div>
                 ) : (
-                    <div className="status-container">Selecione um cliente para visualizar o resumo da IA.</div>
+                    <div className="status-container empty-state">
+                        <MessageSquare size={48} strokeWidth={1.5} />
+                        <h3>Nenhum chat aberto</h3>
+                        <p>Selecione um cliente na barra lateral para auditar a transcrição completa das mensagens trocadas com o bot.</p>
+                    </div>
                 )}
             </div>
         </div>

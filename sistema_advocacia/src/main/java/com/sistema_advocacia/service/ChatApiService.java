@@ -1,5 +1,6 @@
 package com.sistema_advocacia.service;
 
+import com.sistema_advocacia.model.Cliente; 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -22,15 +23,53 @@ public class ChatApiService {
 
     private final RestClient restClient;
     private final String chatApiUrl;
+    private final ClienteService clienteService;
 
-    public ChatApiService(@Value("${chat.api.url}") String chatApiUrl) {
+    public ChatApiService(@Value("${chat.api.url}") String chatApiUrl, ClienteService clienteService) {
         this.chatApiUrl = chatApiUrl;
+        this.clienteService = clienteService;
         this.restClient = RestClient.builder()
                 .baseUrl(chatApiUrl)
                 .build();
     }
 
     public ResponseEntity<Map<String, Object>> enviarMensagemTriagem(Integer idCliente, String mensagem) {
+        if (mensagem != null && !mensagem.isBlank()) {
+            String msgMinuscula = mensagem.toLowerCase();
+            String nomeExtraido = null;
+
+            if (msgMinuscula.contains("meu nome é")) {
+                nomeExtraido = mensagem.substring(msgMinuscula.indexOf("meu nome é") + 10).trim();
+            } else if (msgMinuscula.contains("meu nome e")) {
+                nomeExtraido = mensagem.substring(msgMinuscula.indexOf("meu nome e") + 10).trim();
+            } else if (msgMinuscula.contains("me chamo")) {
+                nomeExtraido = mensagem.substring(msgMinuscula.indexOf("me chamo") + 8).trim();
+            }
+
+            if (nomeExtraido != null && !nomeExtraido.isBlank()) {
+                if (nomeExtraido.contains(".")) {
+                    nomeExtraido = nomeExtraido.substring(0, nomeExtraido.indexOf(".")).trim();
+                }
+                if (nomeExtraido.contains(",")) {
+                    nomeExtraido = nomeExtraido.substring(0, nomeExtraido.indexOf(",")).trim();
+                }
+
+                String[] palavras = nomeExtraido.split("\\s+");
+                if (palavras.length > 0) {
+                    String nomeFinal = palavras[0];
+                    if (palavras.length > 1) {
+                        nomeFinal += " " + palavras[1];
+                    }
+
+                    final String nomeSalvar = nomeFinal;
+                    clienteService.buscarPorId(idCliente).ifPresent(cliente -> {
+                        cliente.setNome(nomeSalvar);
+                        clienteService.salvarCliente(cliente);
+                    });
+                }
+            }
+       }
+
         return postJson("/chat/triagem", Map.of(
                 "idCliente", idCliente,
                 "mensagem", mensagem
