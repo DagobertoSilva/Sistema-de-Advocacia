@@ -6,10 +6,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/conversas")
+@CrossOrigin(origins = "http://localhost:5173") 
 public class ConversaController {
 
     private final ConversaService conversaService;
@@ -43,23 +47,27 @@ public class ConversaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(novaConversa);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Conversa> atualizar(@PathVariable Integer id, @RequestBody Conversa conversa) {
-        return conversaService.buscarPorId(id)
-                .map(existente -> {
-                    conversa.setId(id);
-                    Conversa atualizada = conversaService.salvarConversa(conversa);
-                    return ResponseEntity.ok(atualizada);
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
+    @GetMapping("/cliente/{idCliente}/resumo")
+    public ResponseEntity<Map<String, Object>> obterResumoIACliente(@PathVariable Integer idCliente) {
+        Map<String, Object> resumo = new HashMap<>();
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        if (conversaService.buscarPorId(id).isPresent()) {
-            conversaService.deletarConversa(id);
-            return ResponseEntity.noContent().build();
+        if (idCliente == 1) {
+            resumo.put("contexto", "Cliente relata demissão sem justa causa e falta de pagamento de horas extras nos últimos 2 anos.");
+            resumo.put("pontosChave", Arrays.asList("Trabalho noturno sem adicional", "Férias vencidas não pagas", "Testemunhas disponíveis"));
+            resumo.put("documentos", "Contrato de trabalho, holerites (últimos 6 meses), registro de ponto.");
+            resumo.put("proximaAcao", "Preparar petição inicial para reclamação trabalhista.");
+        } else if (idCliente == 2) {
+            resumo.put("contexto", "Processo de divórcio litigioso e disputa de guarda de menores.");
+            resumo.put("pontosChave", Arrays.asList("Desacordo sobre pensão alimentícia", "Bens a partilhar (imóvel e carro)"));
+            resumo.put("documentos", "Certidão de casamento, certidão de nascimento dos filhos, escritura do imóvel.");
+            resumo.put("proximaAcao", "Agendar audiência de conciliação familiar.");
+        } else {
+            resumo.put("contexto", "Consulta inicial para análise de viabilidade de ação de reparação civil por danos materiais.");
+            resumo.put("pontosChave", Arrays.asList("Contrato violado por prestador de serviços", "Notificações extrajudiciais já enviadas"));
+            resumo.put("documentos", "Contrato de prestação de serviços, comprovantes de pagamento, conversas de WhatsApp salvas.");
+            resumo.put("proximaAcao", "Emitir parecer jurídico sobre as chances de êxito.");
         }
-        return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(resumo);
     }
 }

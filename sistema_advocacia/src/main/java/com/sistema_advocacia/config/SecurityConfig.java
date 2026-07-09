@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/whatsapp/webhook").permitAll()
                 .requestMatchers("/api/chat/**").permitAll()
                 .requestMatchers("/api/clientes/relatorios/triagens").permitAll()
+                .requestMatchers("/api/dashboard/**", "/api/conversas/**").authenticated()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
