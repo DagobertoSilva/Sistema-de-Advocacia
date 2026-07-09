@@ -5,7 +5,7 @@ import {
   Cell,
   ResponsiveContainer
 } from "recharts";
-import "./DesempenhoChatbot.css";
+//import "./DesempenhoChatbot.css";
 
 const COLORS = ["#031E4B", "#4A86F7"];
 

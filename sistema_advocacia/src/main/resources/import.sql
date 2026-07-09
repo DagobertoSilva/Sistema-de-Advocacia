@@ -1,0 +1,2 @@
+INSERT INTO perfilacesso (id_perfil, nome_perfil, descricao) VALUES (1, 'ADMIN', 'Administrador do Sistema') ON CONFLICT (id_perfil) DO NOTHING;
+INSERT INTO usuario (nome, email, senha_hash, ativo, id_perfil) VALUES ('Matheus', 'admin@admin.com', '$2a$10$8.ZpXIDZ41Hw6WdD76pAcuI7PImr0C7ZzUo689R4bIm6R51pDejX2', true, 1) ON CONFLICT (email) DO NOTHING;

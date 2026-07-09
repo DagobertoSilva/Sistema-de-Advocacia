@@ -1,9 +1,11 @@
+/home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/GeradorHash.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/SistemaAdvocaciaApplication.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/config/CorsConfig.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/config/JacksonConfig.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/config/SecurityConfig.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/controller/AtualizacaoProcessualController.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/controller/AuthController.java
+/home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/controller/ChatController.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/controller/ClienteController.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/controller/ContratoController.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/controller/ConversaController.java
@@ -44,6 +46,7 @@
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/security/JwtService.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/AtualizacaoProcessualService.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/AuthService.java
+/home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/ChatApiService.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/ClienteService.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/ContratoService.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/ConversaService.java

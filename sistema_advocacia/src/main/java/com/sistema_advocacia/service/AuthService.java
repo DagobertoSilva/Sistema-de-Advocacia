@@ -24,13 +24,23 @@ public class AuthService {
     public String autenticar(String login, String senha) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(login);
 
+        System.out.println("Login recebido: " + login);
+        System.out.println("Senha recebida: " + senha);
+
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            if (cryptoService.matches(senha, usuario.getSenha())) {
+
+            System.out.println("Hash salvo: " + usuario.getSenha());
+
+            boolean ok = cryptoService.matches(senha, usuario.getSenha());
+
+            System.out.println("Senha confere? " + ok);
+
+            if (ok) {
                 return jwtService.generateToken(usuario.getLogin());
             }
         }
-        
+
         throw new RuntimeException("Credenciais inválidas");
     }
 

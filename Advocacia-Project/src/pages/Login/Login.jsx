@@ -1,4 +1,3 @@
-// src/pages/Login/Login.jsx
 import { useState } from "react";
 import "./Login.css";
 
@@ -10,35 +9,32 @@ function Login() {
   const [carregando, setCarregando] = useState(false);
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Impede a página de dar refresh
+    e.preventDefault();
     setErro("");
     setCarregando(true);
 
     try {
-      // Preparado para conectar com seu AuthController na porta 8080
       const resposta = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          login: email, // O seu backend espera o campo "login"
+          login: email,
           senha: senha,
         }),
       });
 
-      const dados = await reply.json();
+      const dados = await resposta.json();
 
       if (!resposta.ok) {
         throw new Error(dados.error || "Erro ao realizar autenticação.");
       }
 
-      // Salva o Token Bearer com segurança no navegador para as próximas telas usarem
       localStorage.setItem("token", dados.token);
       
-      // Aqui faremos o redirecionamento para o Dashboard
       alert("Login realizado com sucesso! Token salvo.");
-      window.location.reload(); // Provisório para atualizar o estado do App
+      window.location.reload();
 
     } catch (err) {
       setErro(err.message);

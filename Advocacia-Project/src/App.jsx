@@ -5,7 +5,7 @@ import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Relatorios from "./pages/Relatorios/Relatorios";
 import Conversas from "./components/Conversas/Conversas";
-import TabelaCasos from "./components/TabelaCasos";
+import TabelaCasos from "./components/TabelaCasos/TabelaCasos";
 import "./App.css";
 
 function App() {

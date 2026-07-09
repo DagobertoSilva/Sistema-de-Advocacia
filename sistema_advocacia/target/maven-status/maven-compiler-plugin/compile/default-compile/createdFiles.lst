@@ -6,6 +6,7 @@ com/sistema_advocacia/controller/ConversaController.class
 com/sistema_advocacia/service/ServicoJuridicoService.class
 com/sistema_advocacia/service/ClienteService.class
 com/sistema_advocacia/config/CorsConfig.class
+com/sistema_advocacia/controller/ChatController.class
 com/sistema_advocacia/repository/PerfilAcessoRepository.class
 com/sistema_advocacia/model/ServicoJuridico.class
 com/sistema_advocacia/controller/AtualizacaoProcessualController.class
@@ -19,6 +20,7 @@ com/sistema_advocacia/repository/TriagemRepository.class
 com/sistema_advocacia/service/ContratoService.class
 com/sistema_advocacia/repository/ClienteRepository.class
 com/sistema_advocacia/controller/AuthController.class
+com/sistema_advocacia/service/ChatApiService$1.class
 com/sistema_advocacia/model/Conversa.class
 com/sistema_advocacia/repository/AtualizacaoProcessualRepository.class
 com/sistema_advocacia/repository/RespostaProntaRepository.class
@@ -30,6 +32,7 @@ com/sistema_advocacia/SistemaAdvocaciaApplication.class
 com/sistema_advocacia/security/JwtAuthFilter.class
 com/sistema_advocacia/service/DocumentoService.class
 com/sistema_advocacia/controller/TriagemController.class
+com/sistema_advocacia/service/ChatApiService.class
 com/sistema_advocacia/controller/ClienteController.class
 com/sistema_advocacia/service/TriagemService.class
 com/sistema_advocacia/security/JwtService.class
