@@ -1,3 +1,4 @@
+// src/components/Graficos/DistribuicaoCasos.jsx
 import {
   BarChart,
   Bar,
@@ -6,17 +7,9 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-
 import "./DistribuicaoCasos.css";
 
-const dados = [
-  { tipo: "Trabalhista", quantidade: 36 },
-  { tipo: "Civil", quantidade: 28 },
-  { tipo: "Empresarial", quantidade: 20 },
-  { tipo: "Família", quantidade: 17 },
-];
-
-function DistribuicaoCasos() {
+function DistribuicaoCasos({ dados }) {
   return (
     <div className="card-distribuicao">
       <h2>Distribuição por Tipo de Caso</h2>
@@ -30,7 +23,6 @@ function DistribuicaoCasos() {
           />
 
           <XAxis dataKey="tipo" />
-
           <YAxis />
 
           <Bar

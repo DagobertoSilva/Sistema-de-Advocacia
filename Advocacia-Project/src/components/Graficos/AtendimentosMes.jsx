@@ -1,3 +1,4 @@
+// src/components/Graficos/AtendimentosMes.jsx
 import {
   AreaChart,
   Area,
@@ -6,18 +7,9 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-
 import "./AtendimentosMes.css";
 
-const dados = [
-  { mes: "Jan", atendimentos: 45 },
-  { mes: "Fev", atendimentos: 52 },
-  { mes: "Mar", atendimentos: 48 },
-  { mes: "Abr", atendimentos: 62 },
-  { mes: "Mai", atendimentos: 74 },
-];
-
-function AtendimentosMes() {
+function AtendimentosMes({ dados }) {
   return (
     <div className="card-atendimentos">
       <h2>Atendimentos por Mês</h2>
@@ -38,7 +30,6 @@ function AtendimentosMes() {
           />
 
           <XAxis dataKey="mes" />
-
           <YAxis />
 
           <Area

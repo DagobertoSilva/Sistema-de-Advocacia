@@ -1,5 +1,6 @@
-Header.jsx
+// src/components/Header/Header.jsx
 import { Search, Bell } from "lucide-react";
+import "./Header.css";
 
 export default function Header() {
   return (
@@ -13,7 +14,7 @@ export default function Header() {
       </div>
 
       <div className="user-area">
-        <Bell size={22}  />
+        <Bell size={22} style={{ cursor: 'pointer', color: '#6b6375' }} />
        
         <div className="user-info">
           <strong>Dr. Alexandre Bezerra</strong>
