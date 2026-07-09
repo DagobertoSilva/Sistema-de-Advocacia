@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:15-alpine
@@ -13,6 +11,47 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d sistema_advocacia"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  api-chat:
+    build:
+      context: ./api-chat
+    container_name: advocacia_api_chat
+    environment:
+      GROQ_API_KEY: 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
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: sistema_advocacia
+      DB_USER: admin
+      DB_PASSWORD: adminpassword
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api-advocacia:
+    build:
+      context: ./sistema_advocacia
+    container_name: advocacia_api
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/sistema_advocacia
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: adminpassword
+      CHAT_API_URL: http://api-chat:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      api-chat:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

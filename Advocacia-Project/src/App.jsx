@@ -5,6 +5,7 @@ import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Relatorios from "./pages/Relatorios/Relatorios";
 import Conversas from "./components/Conversas/Conversas";
+import TabelaCasos from "./components/TabelaCasos";
 import "./App.css";
 
 function App() {
@@ -21,7 +22,10 @@ function App() {
   }, []);
 
   if (!token) {
-    return <Login />;
+    return <Login onLoginSuccess={(fakeToken) => {
+      localStorage.setItem("token", fakeToken || "logado");
+      setToken(fakeToken || "logado");
+    }} />;
   }
 
   const renderizarPagina = () => {
@@ -32,6 +36,8 @@ function App() {
         return <Relatorios />;
       case "conversas":
         return <Conversas />;
+      case "clientes":
+        return <TabelaCasos />;
       default:
         return <Dashboard />;
     }
