@@ -23,7 +23,7 @@ services:
       context: ./api-chat
     container_name: advocacia_api_chat
     environment:
-      GROQ_API_KEY: chave
+      GROQ_API_KEY: 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
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: sistema_advocacia

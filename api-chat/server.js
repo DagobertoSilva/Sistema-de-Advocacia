@@ -71,7 +71,7 @@ async function obterOuCriarConversa(idCliente) {
         `
         SELECT id_conversa
         FROM conversa
-        WHERE id_cliente = $1 AND status = 'Aberta'
+        WHERE id_cliente = $1
         ORDER BY ultima_interacao DESC, data_inicio DESC
         LIMIT 1
         `,
@@ -85,7 +85,7 @@ async function obterOuCriarConversa(idCliente) {
     const novaConversa = await db.query(
         `
         INSERT INTO conversa (id_cliente, canal, status)
-        VALUES ($1, 'Chatbot', 'Aberta')
+        VALUES ($1, 'Chatbot', 'MENU_PRINCIPAL')
         RETURNING id_conversa
         `,
         [idCliente],
