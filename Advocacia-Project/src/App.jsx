@@ -14,6 +14,14 @@ function App() {
   const [sidebarAberta, setSidebarAberta] = useState(true);
 
   useEffect(() => {
+    const jaLimpouEstaSessao = sessionStorage.getItem("limpeza_inicial");
+
+    if (!jaLimpouEstaSessao) {
+      localStorage.removeItem("token");
+      setToken(null);
+      sessionStorage.setItem("limpeza_inicial", "true");
+    }
+
     const handleStorageChange = () => {
       setToken(localStorage.getItem("token"));
     };

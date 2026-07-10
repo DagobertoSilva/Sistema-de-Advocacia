@@ -68,12 +68,44 @@ public class ChatApiService {
                     });
                 }
             }
-       }
+        }
 
-        return postJson("/chat/triagem", Map.of(
+        // 1. Faz a chamada original para obter a resposta do Chatbot (IA)
+        ResponseEntity<Map<String, Object>> response = postJson("/chat/triagem", Map.of(
                 "idCliente", idCliente,
                 "mensagem", mensagem
         ));
+
+        // 2. Analisa a RESPOSTA DO BOT que está voltando da API externa
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            Map<String, Object> body = response.getBody();
+            
+            // Pega o texto gerado pelo bot (ajuste a chave "resposta" ou "conteudo" se o json da IA usar outro nome)
+            Object conteudoBot = body.get("resposta"); 
+            if (conteudoBot == null) {
+                conteudoBot = body.get("conteudo");
+            }
+            if (conteudoBot == null) {
+                conteudoBot = body.get("texto");
+            }
+
+            if (conteudoBot != null) {
+                String textoBotMinusculo = conteudoBot.toString().toLowerCase();
+
+                if (textoBotMinusculo.contains("triagem foi concluída") || 
+                    textoBotMinusculo.contains("triagem foi concluida") || 
+                    textoBotMinusculo.contains("aguardar o retorno")) {
+                    
+                    clienteService.buscarPorId(idCliente).ifPresent(cliente -> {
+                        cliente.setStatusLead(com.sistema_advocacia.model.Enum.StatusLead.Aguardando_retorno);
+                        clienteService.salvarCliente(cliente);
+                        System.out.println("Status do cliente atualizado com sucesso para Aguardando Retorno!");
+                    });
+                }
+            }
+        }
+
+        return response;
     }
 
     public ResponseEntity<Map<String, Object>> enviarPerguntaTexto(Integer idCliente, String pergunta) {

@@ -6,28 +6,22 @@ const Header = () => {
   const [notificacoes, setNotificacoes] = useState([]);
   const [mostrarMenu, setMostrarMenu] = useState(false);
   
-  // Criamos uma referência para o container da área de notificações
   const areaNotificacaoRef = useRef(null);
 
-  // 1. Efeito para fechar o menu ao clicar fora dele
   useEffect(() => {
     const manipularCliqueExterno = (event) => {
-      // Se a área de notificações existir e o clique NÃO foi dentro dela, fecha o menu
       if (areaNotificacaoRef.current && !areaNotificacaoRef.current.contains(event.target)) {
         setMostrarMenu(false);
       }
     };
 
-    // Adiciona o escutador de eventos no documento global
     document.addEventListener('mousedown', manipularCliqueExterno);
     
-    // Limpa o escutador quando o componente for desmontado para evitar vazamento de memória
     return () => {
       document.removeEventListener('mousedown', manipularCliqueExterno);
     };
   }, []);
 
-  // 2. Monitora novas interações vindas do backend (Polling de 10s)
   useEffect(() => {
     const checarNovidades = () => {
       fetch('http://localhost:8080/api/conversas')
