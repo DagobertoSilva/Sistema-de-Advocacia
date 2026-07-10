@@ -6,7 +6,6 @@ const Prioridades = () => {
   const [erro, setErro] = useState(null);
 
   useEffect(() => {
-    // Busca os dados direto do endpoint que você mapeou no DashboardController
     fetch('http://localhost:8080/api/dashboard/casos-prioridade')
       .then((res) => {
         if (!res.ok) throw new Error('Erro ao carregar os casos prioritários.');
@@ -22,7 +21,6 @@ const Prioridades = () => {
       });
   }, []);
 
-  // Helpers para estilizar as badges dinamicamente baseado no retorno do Java
   const obterEstiloUrgencia = (urgencia) => {
     switch (urgencia?.toUpperCase()) {
       case 'ALTA':
