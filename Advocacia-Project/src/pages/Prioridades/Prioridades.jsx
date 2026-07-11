@@ -70,7 +70,10 @@ const Prioridades = () => {
                 {casosUrgentes.map((row, index) => {
                   const nomeCliente = row.cliente?.nome || `Lead #${row.cliente?.id || row.id}`;
                   const dataFormatada = row.dataInicio ? new Date(row.dataInicio).toLocaleDateString("pt-BR") : "Recente";
-                  const isEmergencia = row.cliente?.statusLead === "Emergencia_max";
+                  const assuntoReal = row.cliente?.assuntoTipificado || "Triagem Chatbot";
+                  
+                  // Ajuste de consistência idêntico ao Dashboard
+                  const isEmergencia = row.cliente?.statusLead === "Emergencia_max" || assuntoReal === "Roubo"|| assuntoReal === "Roubo de Veículo" || assuntoReal === "Tráfico"|| assuntoReal === "preso em flagrante";
 
                   return (
                     <tr key={index}>
@@ -80,7 +83,7 @@ const Prioridades = () => {
                         </div>
                         <strong>{nomeCliente}</strong>
                       </td>
-                      <td>{row.cliente?.assuntoTipificado || "Triagem Chatbot"}</td>
+                      <td>{assuntoReal}</td>
                       <td className="date-cell">
                         <div className="date-with-icon">
                           <Clock size={14} />
@@ -88,7 +91,6 @@ const Prioridades = () => {
                         </div>
                       </td>
                       <td>
-                        {/* Tag discreta com as cores que você escolheu */}
                         <span 
                           className="legal-badge" 
                           style={{ 

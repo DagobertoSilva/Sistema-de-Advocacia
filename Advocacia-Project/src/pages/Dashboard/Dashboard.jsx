@@ -132,20 +132,27 @@ const Dashboard = () => {
                 tableData.map((row, index) => {
                   const nomeOriginal = row.cliente?.nome || `Lead #${row.cliente?.id || row.id}`;
                   const dataFormatada = row.dataInicio ? new Date(row.dataInicio).toLocaleDateString("pt-BR") : "Recente";
-                  const isEmergencia = row.cliente?.statusLead === "Emergencia_max";
+                  
+                  // Captura o assunto tipificado real enviado pelo banco
+                  const assuntoReal = row.cliente?.assuntoTipificado || "Triagem Chatbot";
+
+                  // Identifica o Roberto de forma infalível baseando-se no assunto "Roubo" ou no status de emergência
+                  const isEmergencia = row.cliente?.statusLead === "Emergencia_max" || assuntoReal === "Roubo" || assuntoReal === "Roubo de Veículo" || assuntoReal === "Tráfico"|| assuntoReal === "preso em flagrante";
 
                   return (
                     <tr key={index}>
                       <td className="font-bold-cell">{nomeOriginal}</td>
-                      <td>Triagem Chatbot</td>
+                      <td>{assuntoReal}</td>
                       <td>
-                        <span className="status-badge badge-red">
-                          ALTA
+                        <span className={`status-badge ${isEmergencia ? 'badge-red' : ''}`} style={{
+                          backgroundColor: isEmergencia ? "#fee2e2" : "#e2e8f0",
+                          color: isEmergencia ? "#ef4444" : "#475569"
+                        }}>
+                          {isEmergencia ? "ALTA" : "NORMAL"}
                         </span>
                       </td>
                       <td>{dataFormatada}</td>
                       <td>
-                        {/* Tag estilizada dinamicamente conforme o status */}
                         <span 
                           className="status-badge" 
                           style={{ 

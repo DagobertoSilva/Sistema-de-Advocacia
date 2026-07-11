@@ -46,19 +46,15 @@ export default function Conversas() {
                                 }
                             }
                         }
+                        const assuntoReal = conv.cliente?.assuntoTipificado || "Triagem Chatbot";
 
                         return {
                             id: conv.id,
                             id_cliente: conv.cliente?.id || conv.id,
                             nome: nomeLimpo,
                             whatsapp: conv.cliente?.numeroWhatsapp || "Sem número",
-                            area: "Triagem Chatbot",
-                            urgencia: (
-                                conv.cliente?.statusLead === "Emergencia_max" || 
-                                conv.cliente?.statusLead === "Aguardando_retorno" || 
-                                conv.urgente === true || 
-                                conv.cliente?.urgente === true
-                                ) ? "Alta" : "Normal",
+                            area: assuntoReal,
+                            urgencia: (conv.cliente?.statusLead === "Emergencia_max" || assuntoReal === "Roubo" || assuntoReal === "Roubo de Veículo" || assuntoReal === "Tráfico"|| assuntoReal === "preso em flagrante") ? "Alta" : "Normal",
                             data: conv.dataInicio ? new Date(conv.dataInicio).toLocaleDateString("pt-BR") : "Recente"
                         };
                     });
