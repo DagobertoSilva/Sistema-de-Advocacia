@@ -34,13 +34,19 @@ const Dashboard = () => {
         setLoadingMetrics(false);
       });
 
-    fetch('http://localhost:8080/api/dashboard/casos-prioridade')
+    // 2. Busca a lista de conversas ativas para filtrar as prioridades na tabela
+    fetch('http://localhost:8080/api/conversas')
       .then((res) => {
         if (!res.ok) throw new Error('Erro ao buscar casos do dashboard');
         return res.json();
       })
       .then((data) => {
-        setTableData(data);
+        // Filtra para exibir apenas os casos urgentes ou que aguardam retorno do advogado
+        const prioridades = data.filter(conv => 
+          conv.cliente?.statusLead === "Emergencia_max" || 
+          conv.cliente?.statusLead === "Aguardando_retorno"
+        );
+        setTableData(prioridades);
         setLoadingTable(false);
       })
       .catch((err) => {
@@ -48,6 +54,9 @@ const Dashboard = () => {
         setLoadingTable(false);
       });
   }, []);
+
+  // Conta dinamicamente quantos clientes na tabela geral possuem status urgente ou aguardando retorno
+  const totalCasosUrgentesReal = tableData.length;
 
   const metricsData = [
     {
@@ -64,7 +73,7 @@ const Dashboard = () => {
     },
     {
       title: "Casos Urgentes",
-      value: loadingMetrics ? "..." : metrics.totalTriagens, 
+      value: loadingTable ? "..." : totalCasosUrgentesReal, 
       icon: <AlertTriangle size={24} className="icon-red" />,
       bgClass: "bg-red",
       textColor: "text-red"
@@ -117,22 +126,43 @@ const Dashboard = () => {
                 </tr>
               ) : tableData.length === 0 ? (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: 'center' }}>Nenhum caso encontrado no banco de dados.</td>
+                  <td colSpan="5" style={{ textAlign: 'center' }}>Nenhum caso urgente pendente no momento.</td>
                 </tr>
               ) : (
-                tableData.map((row, index) => (
-                  <tr key={index}>
-                    <td className="font-bold-cell">{row.cliente}</td>
-                    <td>{row.assunto}</td>
-                    <td>
-                      <span className={`status-badge ${row.urgencia === 'ALTA' ? 'badge-red' : 'badge-slate'}`}>
-                        {row.urgencia}
-                      </span>
-                    </td>
-                    <td>{row.data}</td>
-                    <td>{row.status}</td>
-                  </tr>
-                ))
+                tableData.map((row, index) => {
+                  const nomeOriginal = row.cliente?.nome || `Lead #${row.cliente?.id || row.id}`;
+                  const dataFormatada = row.dataInicio ? new Date(row.dataInicio).toLocaleDateString("pt-BR") : "Recente";
+                  const isEmergencia = row.cliente?.statusLead === "Emergencia_max";
+
+                  return (
+                    <tr key={index}>
+                      <td className="font-bold-cell">{nomeOriginal}</td>
+                      <td>Triagem Chatbot</td>
+                      <td>
+                        <span className="status-badge badge-red">
+                          ALTA
+                        </span>
+                      </td>
+                      <td>{dataFormatada}</td>
+                      <td>
+                        {/* Tag estilizada dinamicamente conforme o status */}
+                        <span 
+                          className="status-badge" 
+                          style={{ 
+                            backgroundColor: isEmergencia ? "#fee2e2" : "#f1f5f9", 
+                            color: isEmergencia ? "#ef4444" : "#000000",
+                            fontWeight: "700",
+                            padding: "4px 12px",
+                            borderRadius: "9999px",
+                            display: "inline-block"
+                          }}
+                        >
+                          {isEmergencia ? "EMERGÊNCIA" : "AGUARDANDO"}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

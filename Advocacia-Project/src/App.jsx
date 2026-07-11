@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Relatorios from "./pages/Relatorios/Relatorios";
 import Conversas from "./components/Conversas/Conversas";
 import TabelaCasos from "./components/TabelaCasos/TabelaCasos";
+import Prioridades from "./pages/Prioridades/Prioridades";
 import "./App.css";
 
 function App() {
@@ -33,7 +34,7 @@ function App() {
     return <Login onLoginSuccess={(fakeToken) => {
       localStorage.setItem("token", fakeToken || "logado");
       setToken(fakeToken || "logado");
-    }} />;
+    }} />
   }
 
   const renderizarPagina = () => {
@@ -46,6 +47,8 @@ function App() {
         return <Conversas />;
       case "clientes":
         return <TabelaCasos />;
+      case "prioridades": 
+        return <Prioridades />;
       default:
         return <Dashboard />;
     }
@@ -59,9 +62,11 @@ function App() {
         sidebarAberta={sidebarAberta} 
         setSidebarAberta={setSidebarAberta} 
       />
-      <main className={`content ${telaAtiva === "conversas" || telaAtiva === "dashboard" ? "content-conversas-limpo" : ""}`}>
-        <Header />
-        {renderizarPagina()}
+      <main className={`content ${telaAtiva === "conversas" || telaAtiva === "dashboard" ? 'sem-padding' : ''}`}>
+        <Header sidebarAberta={sidebarAberta} setSidebarAberta={setSidebarAberta} />
+        <div className="page-content">
+          {renderizarPagina()}
+        </div>
       </main>
     </div>
   );

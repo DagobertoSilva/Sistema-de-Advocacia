@@ -1,0 +1,179 @@
+.prioridades-container {
+  padding: 24px 30px;
+  background-color: #ffffff;
+  min-height: calc(100vh - 70px);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.prioridades-header-page {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+}
+
+.prioridades-header-page .title-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.prioridades-header-page .title-icon {
+  color: #061d49;
+}
+
+.prioridades-header-page h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #061d49;
+  margin: 0 0 4px 0;
+}
+
+.prioridades-header-page p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.counter-badge-total {
+  background-color: #f1f5f9;
+  color: #334155;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+}
+
+.prioridades-state-msg {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.prioridades-state-msg.empty {
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background-color: #f8fafc;
+}
+
+/* Tabela Profissional / Discreta */
+.legal-table-wrapper {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.legal-table th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase;
+}
+
+.legal-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+/* Efeito sutil ao passar o mouse */
+.legal-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Celula com iniciais do Cliente */
+.client-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #061d49;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.client-name-cell strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.phone-cell {
+  font-family: monospace;
+  color: #475569;
+  font-size: 13px;
+}
+
+.date-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Badges Discretas */
+.legal-badge {
+  font-weight: 700;
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.badge-critical {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.badge-waiting {
+  background-color: #f1f5f9;
+  color: #000000;
+  border: 1px solid #e2e8f0;
+}
+
+/* Botão de Ação Clássico e Elegante */
+.action-btn-legal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #ffffff;
+  color: #061d49;
+  border: 1px solid #061d49;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn-legal:hover {
+  background-color: #061d49;
+  color: #ffffff;
+}

@@ -11,7 +11,7 @@ const Header = () => {
   useEffect(() => {
     const manipularCliqueExterno = (event) => {
       if (areaNotificacaoRef.current && !areaNotificacaoRef.current.contains(event.target)) {
-        setMostrarMenu(false);
+        setSidebarAberta ? null : setMostrarMenu(false);
       }
     };
 
@@ -28,84 +28,78 @@ const Header = () => {
         .then((res) => res.json())
         .then((data) => {
           const novasNotificacoes = [];
+          
           data.forEach(conv => {
-            if (conv.cliente?.statusLead === "Emergencia_max") {
-              novasNotificacoes.push(
-                <span>
-                  <strong>Caso Urgente:</strong> {conv.cliente?.nome || 'Novo Lead'}
-                </span>);
+            // Filtra tanto urgências máximas quanto quem aguarda o advogado
+            if (conv.cliente?.statusLead === "Emergencia_max" || conv.cliente?.statusLead === "Aguardando_retorno") {
+              const tipoStatus = conv.cliente?.statusLead === "Emergencia_max" ? "Emergência" : "Aguardando";
+              novasNotificacoes.push({
+                id: conv.id,
+                texto: `${tipoStatus}: ${conv.cliente?.nome || 'Novo Lead'}`
+              });
             }
           });
           
-          if (novasNotificacoes.length > 0) {
-            setNotificacoes(novasNotificacoes);
-          }
+          // Atualiza o estado apenas se a quantidade mudou para evitar loops infinitos
+          setNotificacoes(novasNotificacoes);
         })
         .catch((err) => console.error("Erro ao checar notificações:", err));
     };
 
+    // Executa imediatamente e ativa o polling a cada 5 segundos pareado com as outras telas
     checarNovidades();
-    const interval = setInterval(checarNovidades, 10000);
+    const interval = setInterval(checarNovidades, 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <header className="header" style={{ marginBottom: "25px", position: "relative" }}>
-      <div className="search-placeholder-vazio"></div> 
+    <header className="header">
+      <div className="search-box">
+        <input type="text" placeholder="Pesquisar processos, clientes ou documentos..." />
+      </div>
 
-      {/* Envolvemos o botão e o menu na ref para sabermos o que faz parte da "área" */}
-      <div className="user-area" ref={areaNotificacaoRef}>
-        
-        {/* Botão do Sino */}
-        <button 
-          className="icon-button" 
-          onClick={() => setMostrarMenu(!mostrarMenu)} 
-          style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer' }}
+      <div className="user-area">
+        {/* Área de Notificação com referência para clique externo */}
+        <div 
+          className="notification-icon" 
+          ref={areaNotificacaoRef} 
+          onClick={() => setMostrarMenu(!mostrarMenu)}
+          style={{ position: 'relative', cursor: 'pointer', marginRight: '15px' }}
         >
-          <Bell size={20} color="#1e293b" />
+          <Bell size={24} color="gray" />
+          {/* O contador agora mostra dinamicamente o total real de notificações */}
           {notificacoes.length > 0 && (
-            <span style={{
-              position: 'absolute',
-              top: '-5px',
-              right: '-5px',
-              background: '#ef4444',
-              color: 'white',
-              fontSize: '10px',
-              fontWeight: 'bold',
-              borderRadius: '50%',
-              padding: '2px 6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
+            <span className="notification-badge">
               {notificacoes.length}
             </span>
           )}
-        </button>
+        </div>
 
-        {/* Menu de Notificações Pop-over */}
+        {/* Dropdown de Notificações */}
         {mostrarMenu && (
           <div style={{
             position: 'absolute',
-            top: '50px',
-            right: '180px',
+            top: '65px',
+            right: '210px',
             background: 'white',
             border: '1px solid #e2e8f0',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-            width: '260px',
-            zIndex: 100,
-            padding: '10px'
+            borderRadius: '12px',
+            boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
+            width: '280px',
+            zIndex: 999,
+            padding: '14px',
+            maxHeight: '350px',
+            overflowY: 'auto'
           }}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#1e293b', borderBottom: '1px solid #f1f5f9', paddingBottom: '4px' }}>
-              Notificações
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#061d49', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px', fontWeight: '700' }}>
+              Notificações de Urgência
             </h4>
             {notificacoes.length === 0 ? (
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Nenhuma novidade no momento.</p>
+              <p style={{ margin: 0, fontSize: '12px', color: '#64748b', textAlign: 'center', padding: '10px 0' }}>Nenhuma novidade no momento.</p>
             ) : (
               notificacoes.map((notif, idx) => (
-                <div key={idx} style={{ padding: '6px 0', fontSize: '12px', color: '#475569', borderBottom: idx !== notificacoes.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
-                  {notif}
+                <div key={idx} style={{ padding: '8px 4px', fontSize: '12px', color: '#334155', borderBottom: idx !== notificacoes.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                  {notif.texto}
                 </div>
               ))
             )}
@@ -114,11 +108,11 @@ const Header = () => {
 
         {/* Informações do Dr. Alexandre Bezerra */}
         <div className="user-info">
-          <p style={{ margin: 0, fontWeight: 600, color: '#1e293b' }}>Dr. Alexandre Bezerra</p>
-          <span>Advogado</span>
+          <strong>Dr. Alexandre Bezerra</strong>
+          <span>Criminalista</span>
         </div>
         <div className="avatar">
-          <span style={{ fontSize: '14px', fontWeight: 'bold' }}>AB</span>
+          <User size={20} />
         </div>
       </div>
     </header>

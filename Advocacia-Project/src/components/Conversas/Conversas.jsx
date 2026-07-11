@@ -13,7 +13,9 @@ export default function Conversas() {
     const [carregandoMensagens, setCarregandoMensagens] = useState(false);
 
     useEffect(() => {
-        if (UTILIZAR_BACKEND_REAL) {
+        if (!UTILIZAR_BACKEND_REAL) return;
+
+        const carregarCasosEConversas = () => {
             fetch("http://localhost:8080/api/conversas")
                 .then((res) => res.json())
                 .then((data) => {
@@ -51,16 +53,31 @@ export default function Conversas() {
                             nome: nomeLimpo,
                             whatsapp: conv.cliente?.numeroWhatsapp || "Sem número",
                             area: "Triagem Chatbot",
-                            urgencia: conv.cliente?.statusLead === "Emergencia_max" ? "Alta" : "Normal",
+                            urgencia: (
+                                conv.cliente?.statusLead === "Emergencia_max" || 
+                                conv.cliente?.statusLead === "Aguardando_retorno" || 
+                                conv.urgente === true || 
+                                conv.cliente?.urgente === true
+                                ) ? "Alta" : "Normal",
                             data: conv.dataInicio ? new Date(conv.dataInicio).toLocaleDateString("pt-BR") : "Recente"
                         };
                     });
+                    
                     setConversas(formatadas);
-                    setConversasFiltradas(formatadas);
+                    
+                    if (!termoPesquisa) {
+                        setConversasFiltradas(formatadas);
+                    }
                 })
                 .catch((err) => console.error("Erro ao buscar conversas:", err));
-        }
-    }, []);
+        };
+
+        carregarCasosEConversas();
+
+        const intervaloAtalizacao = setInterval(carregarCasosEConversas, 5000);
+
+        return () => clearInterval(intervaloAtalizacao);
+    }, [termoPesquisa]); 
 
     const handlePesquisaChange = (e) => {
         const valor = e.target.value;
