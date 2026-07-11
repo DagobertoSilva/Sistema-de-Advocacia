@@ -19,6 +19,7 @@
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/controller/WhatsappController.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/model/AtualizacaoProcessual.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/model/Cliente.java
+/home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/model/Configuracao.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/model/Contrato.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/model/Conversa.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/model/Documento.java
@@ -31,6 +32,7 @@
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/model/Usuario.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/repository/AtualizacaoProcessualRepository.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/repository/ClienteRepository.java
+/home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/repository/ConfiguracaoRepository.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/repository/ContratoRepository.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/repository/ConversaRepository.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/repository/DocumentoRepository.java
@@ -47,6 +49,7 @@
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/AuthService.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/ChatApiService.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/ClienteService.java
+/home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/ConfiguracaoController.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/ContratoService.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/ConversaService.java
 /home/user/Documentos/PI3/Sistema-de-Advocacia/sistema_advocacia/src/main/java/com/sistema_advocacia/service/DocumentoService.java

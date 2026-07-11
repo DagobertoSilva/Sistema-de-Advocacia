@@ -5,16 +5,44 @@ import './Header.css';
 const Header = () => {
   const [notificacoes, setNotificacoes] = useState([]);
   const [mostrarMenu, setMostrarMenu] = useState(false);
+  const [perfil, setPerfil] = useState({ nomeAdvogado: "Carregando...", oab: "" });
   const areaNotificacaoRef = useRef(null);
 
+  // Função para buscar os dados de perfil do backend
+  const carregarDadosPerfil = () => {
+    const token = localStorage.getItem("token");
+    fetch('http://localhost:8080/api/configuracoes', {
+      headers: { "Authorization": `Bearer ${token}` }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setPerfil({
+          nomeAdvogado: data.nomeAdvogado || "Dr. Alexandre Bezerra",
+          oab: data.oab || "OAB/CE 99.999"
+        });
+      })
+      .catch(() => {
+        setPerfil({ nomeAdvogado: "Dr. Alexandre Bezerra", oab: "OAB/CE 99.999" });
+      });
+  };
+
   useEffect(() => {
+    carregarDadosPerfil();
+
+    // Escuta quando a página de configurações salvar algo para recarregar o cabeçalho
+    window.addEventListener("perfilAtualizado", carregarDadosPerfil);
+    
     const manipularCliqueExterno = (event) => {
       if (areaNotificacaoRef.current && !areaNotificacaoRef.current.contains(event.target)) {
         setMostrarMenu(false);
       }
     };
     document.addEventListener('mousedown', manipularCliqueExterno);
-    return () => document.removeEventListener('mousedown', manipularCliqueExterno);
+    
+    return () => {
+      window.removeEventListener("perfilAtualizado", carregarDadosPerfil);
+      document.removeEventListener('mousedown', manipularCliqueExterno);
+    };
   }, []);
 
   useEffect(() => {
@@ -100,8 +128,8 @@ const Header = () => {
         )}
 
         <div className="user-info">
-          <strong>Dr. Alexandre Bezerra</strong>
-          <span>Criminalista</span>
+          <strong>{perfil.nomeAdvogado}</strong>
+          <span>{perfil.oab ? perfil.oab : "Criminalista"}</span>
         </div>
         <div className="avatar">
           <User size={20} />

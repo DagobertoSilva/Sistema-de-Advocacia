@@ -7,6 +7,7 @@ import Relatorios from "./pages/Relatorios/Relatorios";
 import Conversas from './pages/Conversas/Conversas';
 import Clientes from "./pages/Clientes/Clientes";
 import Prioridades from "./pages/Prioridades/Prioridades";
+import Configuracoes from "./pages/Configuracoes/Configuracoes";
 import "./App.css";
 
 function App() {
@@ -49,6 +50,8 @@ function App() {
         return <Clientes />;
       case "prioridades": 
         return <Prioridades />;
+      case "configuracoes":
+        return <Configuracoes />;
       default:
         return <Dashboard />;
     }

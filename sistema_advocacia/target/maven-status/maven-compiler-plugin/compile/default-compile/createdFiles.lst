@@ -26,6 +26,7 @@ com/sistema_advocacia/repository/AtualizacaoProcessualRepository.class
 com/sistema_advocacia/repository/RespostaProntaRepository.class
 com/sistema_advocacia/repository/MensagemRepository.class
 com/sistema_advocacia/config/JacksonConfig.class
+com/sistema_advocacia/controller/ConfiguracaoController.class
 com/sistema_advocacia/controller/UsuarioController.class
 com/sistema_advocacia/model/Documento.class
 com/sistema_advocacia/SistemaAdvocaciaApplication.class
@@ -35,6 +36,7 @@ com/sistema_advocacia/controller/TriagemController.class
 com/sistema_advocacia/service/ChatApiService.class
 com/sistema_advocacia/controller/ClienteController.class
 com/sistema_advocacia/service/TriagemService.class
+com/sistema_advocacia/repository/ConfiguracaoRepository.class
 com/sistema_advocacia/security/JwtService.class
 com/sistema_advocacia/model/RespostaPronta.class
 com/sistema_advocacia/model/Usuario.class
@@ -54,6 +56,7 @@ com/sistema_advocacia/repository/ConversaRepository.class
 com/sistema_advocacia/model/Cliente.class
 com/sistema_advocacia/controller/ServicoJuridicoController.class
 com/sistema_advocacia/service/UsuarioService.class
+com/sistema_advocacia/model/Configuracao.class
 com/sistema_advocacia/controller/RespostaProntaController.class
 com/sistema_advocacia/repository/ServicoJuridicoRepository.class
 com/sistema_advocacia/controller/MensagemController.class
