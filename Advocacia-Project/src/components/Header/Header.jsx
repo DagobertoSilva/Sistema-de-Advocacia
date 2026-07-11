@@ -5,21 +5,16 @@ import './Header.css';
 const Header = () => {
   const [notificacoes, setNotificacoes] = useState([]);
   const [mostrarMenu, setMostrarMenu] = useState(false);
-  
   const areaNotificacaoRef = useRef(null);
 
   useEffect(() => {
     const manipularCliqueExterno = (event) => {
       if (areaNotificacaoRef.current && !areaNotificacaoRef.current.contains(event.target)) {
-        setSidebarAberta ? null : setMostrarMenu(false);
+        setMostrarMenu(false);
       }
     };
-
     document.addEventListener('mousedown', manipularCliqueExterno);
-    
-    return () => {
-      document.removeEventListener('mousedown', manipularCliqueExterno);
-    };
+    return () => document.removeEventListener('mousedown', manipularCliqueExterno);
   }, []);
 
   useEffect(() => {
@@ -28,9 +23,7 @@ const Header = () => {
         .then((res) => res.json())
         .then((data) => {
           const novasNotificacoes = [];
-          
           data.forEach(conv => {
-            // Filtra tanto urgências máximas quanto quem aguarda o advogado
             if (conv.cliente?.statusLead === "Emergencia_max" || conv.cliente?.statusLead === "Aguardando_retorno") {
               const tipoStatus = conv.cliente?.statusLead === "Emergencia_max" ? "Emergência" : "Aguardando";
               novasNotificacoes.push({
@@ -39,27 +32,19 @@ const Header = () => {
               });
             }
           });
-          
-          // Atualiza o estado apenas se a quantidade mudou para evitar loops infinitos
           setNotificacoes(novasNotificacoes);
         })
-        .catch((err) => console.error("Erro ao checar notificações:", err));
+        .catch((err) => console.error(err));
     };
 
-    // Executa imediatamente e ativa o polling a cada 5 segundos pareado com as outras telas
     checarNovidades();
     const interval = setInterval(checarNovidades, 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <header className="header">
-      <div className="search-box">
-        <input type="text" placeholder="Pesquisar processos, clientes ou documentos..." />
-      </div>
-
+    <header className="header-right-aligned">
       <div className="user-area">
-        {/* Área de Notificação com referência para clique externo */}
         <div 
           className="notification-icon" 
           ref={areaNotificacaoRef} 
@@ -67,15 +52,23 @@ const Header = () => {
           style={{ position: 'relative', cursor: 'pointer', marginRight: '15px' }}
         >
           <Bell size={24} color="gray" />
-          {/* O contador agora mostra dinamicamente o total real de notificações */}
           {notificacoes.length > 0 && (
-            <span className="notification-badge">
+            <span className="notification-badge" style={{
+              position: 'absolute',
+              top: '-5px',
+              right: '-5px',
+              background: '#ef4444',
+              color: 'white',
+              borderRadius: '50%',
+              padding: '2px 6px',
+              fontSize: '10px',
+              fontWeight: 'bold'
+            }}>
               {notificacoes.length}
             </span>
           )}
         </div>
 
-        {/* Dropdown de Notificações */}
         {mostrarMenu && (
           <div style={{
             position: 'absolute',
@@ -106,7 +99,6 @@ const Header = () => {
           </div>
         )}
 
-        {/* Informações do Dr. Alexandre Bezerra */}
         <div className="user-info">
           <strong>Dr. Alexandre Bezerra</strong>
           <span>Criminalista</span>

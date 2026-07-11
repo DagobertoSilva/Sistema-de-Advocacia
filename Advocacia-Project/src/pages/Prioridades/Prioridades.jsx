@@ -80,7 +80,7 @@ const Prioridades = () => {
                         </div>
                         <strong>{nomeCliente}</strong>
                       </td>
-                      <td>Triagem Chatbot</td>
+                      <td>{row.cliente?.assuntoTipificado || "Triagem Chatbot"}</td>
                       <td className="date-cell">
                         <div className="date-with-icon">
                           <Clock size={14} />

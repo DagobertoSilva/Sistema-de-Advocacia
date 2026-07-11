@@ -5,124 +5,39 @@
   font-family: sans-serif;
 }
 
-.container {
-  display: flex;
+html, body, #root {
+  height: 100%;
   width: 100%;
-  min-height: 100vh;
+  overflow: hidden;
   background-color: #f5f5f5;
 }
 
+.container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
 
 .content {
   flex: 1;
-  padding: 30px;
-  min-height: 100vh;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 24px 30px 0px 30px;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
 }
 
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 25px;
+.page-content {
+  flex: 1;
   width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
-.search-box {
-  width: 450px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: white;
-  border: 1px solid #ddd;
-  padding: 12px;
-  border-radius: 12px;
-}
-
-.search-box input {
-  border: none;
-  outline: none;
-  width: 100%;
-}
-
-.user-area {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.user-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-info span {
-  color: gray;
-  font-size: 12px;
-}
-
-.avatar {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  background: #061d49;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
-.table-card {
-  background: white;
-  border-radius: 15px;
-  padding: 25px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, .08);
-}
-
-.table-card h2 {
-  margin-bottom: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead {
-  background: #f3f4f6;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 18px;
-  border-bottom: 1px solid #eee;
-}
-
-.badge {
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-}
-
-.alta {
-  background: #ffe5e5;
-  color: #d60000;
-}
-
-.media {
-  background: #fff3cd;
-  color: #b8860b;
-}
-
-.baixa {
-  background: #dff5df;
-  color: green;
-}
-.content-conversas-limpo {
-  padding: 0 !important;
-  background-color: #ffffff !important;
+.page-content > div {
+  margin-top: 5px;
 }

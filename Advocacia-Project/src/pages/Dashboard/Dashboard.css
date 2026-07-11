@@ -1,7 +1,6 @@
-/* Container Principal - Agora Branco Puro e Alinhado */
 .dashboard-container {
   padding: 24px 30px;
-  background-color: #ffffff; /* Fundo unificado */
+  background-color: transparent !important;
   min-height: calc(100vh - 70px);
   font-family: sans-serif;
   box-sizing: border-box;
@@ -14,7 +13,6 @@
   margin-bottom: 25px;
 }
 
-/* Grid de Métricas */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -34,50 +32,65 @@
   }
 }
 
-/* Estilo dos Cards - Sem sombras para não criar divisões */
 .metric-card {
-  background: white;
+  background: linear-gradient(to top, #ffffff 0%, #f1f5f9 100%) !important;
   padding: 24px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: none; /* Remove a sombra pesada de caixa */
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+    0 10px 15px -3px rgba(148, 163, 184, 0.22),
+    0 0 0 1px rgba(148, 163, 184, 0.12) !important;
+  height: 110px;
+  box-sizing: border-box;
 }
 
 .metric-info {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .metric-title {
-  font-size: 14px;
-  color: #94a3b8;
-  font-weight: 500;
-  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  display: block;
+  min-height: 32px;
 }
 
 .metric-value {
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 700;
   color: #1e293b;
+  margin: 0;
+  line-height: 1;
 }
 
 .text-red {
-  color: #ef4444;
+  color: #ef4444 !important;
 }
 
-/* Envoltórios de Ícones */
 .metric-icon-wrapper {
   padding: 12px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  align-self: center;
 }
 
-.bg-slate { background-color: #f1f5f9; }
+.bg-slate { background-color: #e2e8f0; }
 .bg-red { background-color: #fee2e2; }
 .bg-green { background-color: #dcfce7; }
 
@@ -85,18 +98,22 @@
 .icon-red { color: #ef4444; }
 .icon-green { color: #22c55e; }
 
-/* Estilo da Tabela - Sem sombras de bloco */
 .table-card {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: none; /* Remove a sensação de camada flutuante */
+  background: linear-gradient(to top, #ffffff 0%, #f1f5f9 100%) !important;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
   overflow: hidden;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+    0 10px 15px -3px rgba(148, 163, 184, 0.22),
+    0 0 0 1px rgba(148, 163, 184, 0.12) !important;
 }
 
 .table-header {
   padding: 20px 24px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  background: transparent !important;
 }
 
 .table-header h3 {
@@ -117,33 +134,34 @@
 }
 
 .custom-table th {
-  background-color: #f8fafc;
+  background-color: rgba(226, 232, 240, 0.4) !important;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
   padding: 14px 24px;
-  color: #64748b;
-  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 600;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .custom-table td {
   padding: 16px 24px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #475569;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+  color: #334155;
   font-size: 14px;
+  background: transparent !important;
 }
 
 .font-bold-cell {
   font-weight: 600;
-  color: #0f172a !important;
+  color: #0f172a;
 }
 
-/* Badges de Status */
 .status-badge {
-  padding: 4px 12px;
-  border-radius: 9999px;
   font-size: 12px;
   font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
   display: inline-block;
 }
 
@@ -152,7 +170,15 @@
   color: #ef4444;
 }
 
-.badge-green {
-  background-color: #dcfce7;
-  color: #16a34a;
+.loading-container, .error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 70px);
+  font-size: 18px;
+  color: #64748b;
+}
+
+.error-container {
+  color: #ef4444;
 }

@@ -4,8 +4,8 @@ import Header from "./components/Header/Header";
 import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Relatorios from "./pages/Relatorios/Relatorios";
-import Conversas from "./components/Conversas/Conversas";
-import TabelaCasos from "./components/TabelaCasos/TabelaCasos";
+import Conversas from './pages/Conversas/Conversas';
+import Clientes from "./pages/Clientes/Clientes";
 import Prioridades from "./pages/Prioridades/Prioridades";
 import "./App.css";
 
@@ -46,7 +46,7 @@ function App() {
       case "conversas":
         return <Conversas />;
       case "clientes":
-        return <TabelaCasos />;
+        return <Clientes />;
       case "prioridades": 
         return <Prioridades />;
       default:
@@ -62,7 +62,7 @@ function App() {
         sidebarAberta={sidebarAberta} 
         setSidebarAberta={setSidebarAberta} 
       />
-      <main className={`content ${telaAtiva === "conversas" || telaAtiva === "dashboard" ? 'sem-padding' : ''}`}>
+      <main className="content">
         <Header sidebarAberta={sidebarAberta} setSidebarAberta={setSidebarAberta} />
         <div className="page-content">
           {renderizarPagina()}

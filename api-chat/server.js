@@ -43,21 +43,31 @@ function verificarGroqConfigurada(res) {
     return false;
 }
 
-function obterIdCliente(body) {
-    const idCliente = Number(body.idCliente || body.id_cliente);
-    return isNaN(idCliente) ? null : idCliente;
-}
-
-async function buscarCliente(idCliente) {
-    const resultado = await db.query(
-        "SELECT id_cliente, nome, status_lead FROM cliente WHERE id_cliente = $1",
-        [idCliente],
+// Nova função para buscar ou criar dinamicamente o cliente usando o número do WhatsApp
+async function garantirClientePorWhatsapp(numeroWhatsapp) {
+    if (!numeroWhatsapp) return null;
+    
+    // Tenta buscar o cliente existente
+    const busca = await db.query(
+        "SELECT id_cliente, nome, status_lead FROM cliente WHERE numero_whatsapp = $1",
+        [numeroWhatsapp]
     );
-    return resultado.rows[0] || null;
+    
+    if (busca.rows.length > 0) {
+        return busca.rows[0];
+    }
+    
+    // Se não existir, insere um novo cliente no banco automaticamente
+    const novoCliente = await db.query(
+        "INSERT INTO cliente (nome, numero_whatsapp, status_lead) VALUES ($1, $2, 'Em_triagem') RETURNING id_cliente, nome, status_lead",
+        ["Novo Lead - Whats", numeroWhatsapp]
+    );
+    
+    console.log(`[DATABASE] Novo cliente cadastrado automaticamente via WhatsApp: ${numeroWhatsapp}`);
+    return novoCliente.rows[0];
 }
 
 async function garantirConversaAtiva(idCliente) {
-    // Ajustado de data_criacao para data_inicio conforme especificado no init.sql
     const resultadoExistente = await db.query(
         "SELECT id_conversa FROM conversa WHERE id_cliente = $1 ORDER BY data_inicio DESC LIMIT 1",
         [idCliente],
@@ -75,7 +85,6 @@ async function garantirConversaAtiva(idCliente) {
 }
 
 async function carregarHistoricoMensagens(idConversa) {
-    // Mapeado com uma string para o papel para evitar conflitos com palavras reservadas
     const resultado = await db.query(
         "SELECT remetente, conteudo FROM mensagem WHERE id_conversa = $1 ORDER BY data_envio ASC",
         [idConversa],
@@ -107,26 +116,24 @@ function detectarUrgencia(texto) {
 const TEXTO_ENCERRAMENTO_PADRAO = "Perfeito! Informo que a triagem foi concluída com sucesso. Seus dados e relatórios foram salvos no painel. Por favor, feche esta aba e aguarde, pois um de nossos advogados entrará em contato em breve para dar o retorno.";
 
 // =======================
-// FLUXO DE TRIAGEM PRINCIPAL
+// FLUXO DE TRIAGEM PRINCIPAL (Mapeado por número de WhatsApp)
 // =======================
-
 app.post("/chat/triagem", async (req, res) => {
     try {
         if (!verificarGroqConfigurada(res)) return;
 
-        const idCliente = obterIdCliente(req.body);
+        const numeroWhatsapp = req.body.numeroWhatsapp || req.body.whatsapp;
         const conteudoMensagem = req.body.mensagem || req.body.conteudo;
 
-        if (!idCliente || !conteudoMensagem) {
+        if (!numeroWhatsapp || !conteudoMensagem) {
             return res.status(400).json({
-                erro: "Os campos 'idCliente' (inteiro) e 'mensagem' ou 'conteudo' sao obrigatorios.",
+                erro: "Os campos 'numeroWhatsapp' e 'mensagem' ou 'conteudo' são obrigatórios.",
             });
         }
 
-        const cliente = await buscarCliente(idCliente);
-        if (!cliente) {
-            return res.status(404).json({ erro: "Cliente nao encontrado.", idCliente: idCliente });
-        }
+        // Busca ou cria o registro do cliente na hora usando o número do telefone
+        const cliente = await garantirClientePorWhatsapp(numeroWhatsapp);
+        const idCliente = cliente.id_cliente;
 
         const idConversa = await garantirConversaAtiva(idCliente);
         const historico = await carregarHistoricoMensagens(idConversa);
@@ -157,15 +164,19 @@ REGRAS CRÍTICAS DE PARADA E ENCERRAMENTO:
 MECÂNICA DO NOME:
 - Assim que o usuário disser o nome, envie de volta: "Seu nome é [Nome], está correto?". Assim que ele confirmar, envie o nome limpo no campo "nomeConfirmadoESalvar".
 
-CLASSIFICAÇÃO DE RISCO:
-- Defina "urgente" como true se o usuário relatar prisão em andamento, flagrante ou detenção recente. Caso contrário, false.
+CLASSIFICAÇÃO DE RISCO E ASSUNTO:
+- Defina "urgente" as true se o usuário relatar prisão em andamento, flagrante ou detenção recente. Caso contrário, false.
+- No campo "assuntoTipificado", analise o crime/motivo relatado e classifique em uma frase curta de 2 a 4 palavras (Ex: "Tráfico de Drogas", "Busca e Apreensão", "Furto Qualificado", "Divórcio Cível", "Estelionato"). Se ainda não souber o crime, mande "Triagem Chatbot".
+- No campo "resumoFatos", conforme o andamento da conversa, crie um parágrafo descritivo e formal resumindo os fatos apurados (Quem foi preso, qual o motivo alegado, local e se há audiência). Atualize este resumo a cada mensagem.
 
 Sua resposta DEVE ser estritamente este JSON válido, sem markdown ou blocos de código adicionais:
 {
   "mensagemParaOCliente": "Sua próxima pergunta para preencher o checklist ou o texto padrão de encerramento",
   "nomeConfirmadoESalvar": "Nome limpo se confirmado, senão null",
   "urgente": true ou false,
-  "coletaFinalizada": true ou false
+  "coletaFinalizada": true ou false,
+  "assuntoTipificado": "Classificação curta do crime ou caso",
+  "resumoFatos": "Resumo analítico e formal dos acontecimentos colhidos até agora"
 }
 `,
             },
@@ -197,6 +208,8 @@ Sua resposta DEVE ser estritamente este JSON válido, sem markdown ou blocos de 
         let nomeCapturado = respostaObjeto.nomeConfirmadoESalvar;
         let sinalizaUrgenteIA = respostaObjeto.urgente;
         let finalizadoIA = respostaObjeto.coletaFinalizada;
+        let assuntoIA = respostaObjeto.assuntoTipificado || "Triagem Chatbot";
+        let resumoIA = respostaObjeto.resumoFatos || "";
 
         await salvarMensagemNoBanco(idConversa, "assistant", textoParaCliente);
 
@@ -207,6 +220,12 @@ Sua resposta DEVE ser estritamente este JSON válido, sem markdown ou blocos de 
             ]);
             console.log(`[DATABASE] Nome atualizado para: ${nomeCapturado}`);
         }
+
+        await db.query(
+            "UPDATE cliente SET assunto_tipificado = $1, resumo_fatos = $2 WHERE id_cliente = $3",
+            [assuntoIA, resumoIA, idCliente]
+        );
+        console.log(`[DATABASE] Caso ${idCliente} atualizado. Assunto: ${assuntoIA}`);
 
         const urgenteServidor = detectarUrgencia(conteudoMensagem) || detectarUrgencia(textoParaCliente);
         const ehUrgente = sinalizaUrgenteIA === true || urgenteServidor === true;
@@ -230,16 +249,20 @@ Sua resposta DEVE ser estritamente este JSON válido, sem markdown ou blocos de 
 
         if (finalizadoIA === true || textoParaCliente === TEXTO_ENCERRAMENTO_PADRAO) {
             await db.query(
-                "UPDATE cliente SET status_lead = 'Encerrado' WHERE id_cliente = $1 AND status_lead != 'Emergencia_max'",
+                "UPDATE cliente SET status_lead = 'Aguardando_retorno' WHERE id_cliente = $1",
                 [idCliente],
             );
+            console.log(`[DATABASE] Fim da triagem para o cliente ${idCliente}. Status alterado para Aguardando_retorno.`);
         }
 
         res.json({
             resposta: textoParaCliente,
             idCliente: idCliente,
             idConversa: idConversa,
+            numeroWhatsapp: numeroWhatsapp,
             urgente: ehUrgente,
+            assuntoTipificado: assuntoIA,
+            resumoFatos: resumoIA,
             origem: "api-chat",
             chatApiUrl: "http://localhost:3000",
         });
@@ -256,17 +279,11 @@ Sua resposta DEVE ser estritamente este JSON válido, sem markdown ou blocos de 
 // =======================
 // LIMPAR HISTORICO
 // =======================
-
 app.post("/chat/limpar", async (req, res) => {
     try {
-        const idCliente = obterIdCliente(req.body);
-        if (!idCliente) {
-            return res.status(400).json({ erro: "O campo 'idCliente' e obrigatorio e deve ser um numero inteiro." });
-        }
-
-        const cliente = await buscarCliente(idCliente);
-        if (!cliente) {
-            return res.status(404).json({ erro: "Cliente nao encontrado.", idCliente });
+        const numeroWhatsapp = req.body.numeroWhatsapp || req.body.whatsapp;
+        if (!numeroWhatsapp) {
+            return res.status(400).json({ erro: "O campo 'numeroWhatsapp' é obrigatório." });
         }
 
         await db.query(
@@ -274,29 +291,24 @@ app.post("/chat/limpar", async (req, res) => {
             DELETE FROM mensagem
             WHERE id_conversa IN (
                 SELECT id_conversa
-                FROM conversa
-                WHERE id_cliente = $1
+                FROM conversa c
+                JOIN cliente cl ON c.id_cliente = cl.id_cliente
+                WHERE cl.numero_whatsapp = $1
             )
             `,
-            [idCliente],
+            [numeroWhatsapp],
         );
 
-        res.json({ mensagem: "Historico apagado para o cliente informado.", idCliente });
+        res.json({ mensagem: "Histórico apagado para o número informado.", numeroWhatsapp });
     } catch (erro) {
         console.error(erro);
         res.status(500).json({ erro: "Erro ao limpar historico.", detalhes: erro.message });
     }
 });
 
-// =======================
-// IMAGEM (Nao suportado)
-// =======================
-
 app.post("/chat/imagem", upload.single("imagem"), async (req, res) => {
     res.status(501).json({ erro: "O modelo configurado atualmente nao possui suporte a imagens." });
 });
-
-// =======================
 
 app.listen(3000, () => {
     console.log("Servidor da Groq API-Chat rodando com sucesso na porta 3000.");

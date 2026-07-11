@@ -35,11 +35,20 @@ public class Cliente {
     @Column(name = "chatbot_ativo", nullable = true)
     private Boolean chatBotAtivo = true;
 
+    // ----- NOVOS CAMPOS ADICIONADOS -----
+    @Column(name = "assunto_tipificado", length = 150)
+    private String assuntoTipificado;
+
+    @Column(name = "resumo_fatos", columnDefinition = "TEXT")
+    private String resumoFatos;
+    // ------------------------------------
+
     public Cliente() {
     }
 
-    
-    public Cliente(Integer id, String nome, String numeroWhatsapp, String cpf, String grauEscolaridade, LocalDateTime dataCadastro, StatusLead statusLead, Boolean chatBotAtivo) {
+    public Cliente(Integer id, String nome, String numeroWhatsapp, String cpf, String grauEscolaridade, 
+                   LocalDateTime dataCadastro, StatusLead statusLead, Boolean chatBotAtivo, 
+                   String assuntoTipificado, String resumoFatos) {
         this.id = id;
         this.nome = nome;
         this.numeroWhatsapp = numeroWhatsapp;
@@ -48,6 +57,8 @@ public class Cliente {
         this.dataCadastro = dataCadastro;
         this.statusLead = statusLead;
         this.chatBotAtivo = chatBotAtivo;
+        this.assuntoTipificado = assuntoTipificado;
+        this.resumoFatos = resumoFatos;
     }
 
     @PrePersist
@@ -56,6 +67,23 @@ public class Cliente {
             this.dataCadastro = LocalDateTime.now();
         }
     }
+
+    public String getAssuntoTipificado() {
+        return assuntoTipificado;
+    }
+
+    public void setAssuntoTipificado(String assuntoTipificado) {
+        this.assuntoTipificado = assuntoTipificado;
+    }
+
+    public String getResumoFatos() {
+        return resumoFatos;
+    }
+
+    public void setResumoFatos(String resumoFatos) {
+        this.resumoFatos = resumoFatos;
+    }
+    // ----------------------------------------------
 
     public Integer getId() {
         return id;

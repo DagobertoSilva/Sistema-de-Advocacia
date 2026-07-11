@@ -21,7 +21,9 @@ CREATE TABLE Cliente (
     cpf VARCHAR(14) UNIQUE,
     grau_escolaridade VARCHAR(50),
     data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status_lead status_lead_enum DEFAULT 'Em_triagem'
+    status_lead status_lead_enum DEFAULT 'Em_triagem', 
+    assunto_tipificado VARCHAR(150), 
+    resumo_fatos TEXT
 );
 
 -- tabelas dependentes
@@ -120,9 +122,9 @@ INSERT INTO servicoJuridico (nome_servico, descricao) VALUES
 ('Habeas Corpus', 'Pedido de liberdade provisória'),
 ('Acompanhamento Processual', 'Acompanhamento de inquéritos e ações penais');
 
-INSERT INTO Cliente (nome, numero_whatsapp, cpf, grau_escolaridade, status_lead) VALUES
-('Carlos Souza', '85988887777', '11122233344', 'Ensino Médio', 'Emergencia_max'),
-('Maria Silva', '85977776666', '55566677788', 'Ensino Fundamental', 'Aguardando_retorno');
+INSERT INTO Cliente (nome, numero_whatsapp, cpf, grau_escolaridade, status_lead, assunto_tipificado, resumo_fatos) VALUES
+('Carlos Souza', '85988887777', '11122233344', 'Ensino Médio', 'Emergencia_max', 'Tráfico de Drogas', 'Irmão relata prisão em flagrante há 2 horas.'),
+('Maria Silva', '85977776666', '55566677788', 'Ensino Fundamental', 'Aguardando_retorno', 'Triagem Chatbot', 'Aguardando retorno do advogado.');
 
 INSERT INTO triagem (id_cliente, id_servico, resumo_ia, crime_imputado, situacao_atual, local_prisao, tempo_custodia, nivel_urgencia, status_triagem) VALUES
 (1, 1, 'Cliente relata prisão do irmão por tráfico ocorrida há 2 horas. Solicita presença na delegacia.', 'Tráfico', 'Preso em flagrante', 'Delegacia de Capturas', '2 horas', 'ALTA', 'Finalizada');
