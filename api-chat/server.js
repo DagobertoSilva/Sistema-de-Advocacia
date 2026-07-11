@@ -106,8 +106,8 @@ async function carregarHistorico(idConversa) {
     );
 
     return resultado.rows.map((mensagem) => ({
-        role: message.remetente === "Chatbot" ? "assistant" : "user",
-        content: message.conteudo,
+        role: mensagem.remetente === "Chatbot" ? "assistant" : "user",
+        content: mensagem.conteudo,
     }));
 }
 
@@ -126,25 +126,83 @@ async function salvarMensagem(idConversa, remetente, conteudo, statusProcessamen
     );
 }
 
-async function prepararConversa(req, res, campoMensagem) {
-    const idCliente = obterIdCliente(req.body);
-    if (!idCliente) {
-        res.status(400).json({ erro: "O campo 'idCliente' e obrigatorio e deve ser um numero inteiro." });
-        return null;
-    }
+function detectarUrgencia(texto) {
+    if (!texto) return false;
 
+    const mensagem = texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    const expressoesUrgentes = [
+        "estou preso", "estou presa", "fui preso", "fui presa", "foi preso", "foi presa",
+        "acabei de ser preso", "acabei de ser presa", "me prenderam", "delegacia",
+        "distrito policial", "dp", "central de flagrantes", "flagrante", "cadeia",
+        "presidio", "cela", "custodia", "detido", "detida", "detencao", "prisao",
+        "policia levou", "me levaram", "meu filho foi preso", "meu filho esta preso",
+        "minha filha foi presa", "minha filha esta presa", "meu marido foi preso",
+        "meu marido esta preso", "minha esposa foi presa", "minha esposa esta presa",
+        "meu pai foi preso", "meu pai esta preso", "minha mae foi presa",
+        "meu irmao foi preso", "meu irmao esta preso", "minha irma foi presa",
+        "um familiar foi preso", "um amigo foi preso", "habeas corpus", "audiencia de custodia"
+    ];
+
+    return expressoesUrgentes.some(exp => mensagem.includes(exp));
+}
+
+async function prepararConversa(req, res, campoMensagem) {
     const conteudo = req.body[campoMensagem];
     if (!conteudo || !String(conteudo).trim()) {
         res.status(400).json({ erro: `O campo '${campoMensagem}' e obrigatorio.` });
         return null;
     }
 
-    const cliente = await buscarCliente(idCliente);
+    let idCliente = obterIdCliente(req.body);
+    let numeroWhatsapp = req.body.numero_whatsapp || req.body.numeroWhatsapp || (req.body.cliente ? (req.body.cliente.numero_whatsapp || req.body.cliente.numeroWhatsapp) : null);
+    let cliente = null;
+
+    // 1. Se veio idCliente (comportamento padrão do Spring Boot), busca o cliente no banco
+    if (idCliente) {
+        cliente = await buscarCliente(idCliente);
+        if (cliente && !numeroWhatsapp) {
+            // Puxa o WhatsApp cadastrado no banco para alimentar o fluxo da IA
+            const resultadoWhats = await db.query("SELECT numero_whatsapp FROM cliente WHERE id_cliente = $1", [idCliente]);
+            if (resultadoWhats.rows[0]) {
+                numeroWhatsapp = resultadoWhats.rows[0].numero_whatsapp;
+            }
+        }
+    }
+
+    // 2. Se não achou por ID mas tem número (visto em testes diretos), busca por número
+    if (!cliente && numeroWhatsapp) {
+        const resultadoBusca = await db.query(
+            "SELECT id_cliente, nome FROM cliente WHERE numero_whatsapp = $1",
+            [numeroWhatsapp]
+        );
+        cliente = resultadoBusca.rows[0];
+    }
+
+    // 3. Se é uma nova pessoa total (não achou de jeito nenhum) e tem número, cadastra
+    if (!cliente && numeroWhatsapp) {
+        console.log(`[AUTO-CADASTRO] Criando novo cliente para o WhatsApp: ${numeroWhatsapp}`);
+        const novoCliente = await db.query(
+            `
+            INSERT INTO cliente (nome, numero_whatsapp, status_lead, chatbot_ativo, data_cadastro)
+            VALUES ($1, $2, 'Em_triagem', true, CURRENT_TIMESTAMP)
+            RETURNING id_cliente, nome
+            `,
+            [`Lead #${numeroWhatsapp.slice(-4)}`, numeroWhatsapp]
+        );
+        cliente = novoCliente.rows[0];
+    }
+
+    // Se no fim de tudo não tiver cliente nem número, barra com erro descritivo
     if (!cliente) {
-        res.status(404).json({ erro: "Cliente nao encontrado.", idCliente });
+        res.status(400).json({ erro: "Nao foi possivel identificar ou criar o cliente com os dados fornecidos." });
         return null;
     }
 
+    idCliente = cliente.id_cliente;
     const idConversa = await obterOuCriarConversa(idCliente);
 
     return {
@@ -196,7 +254,7 @@ app.post("/chat/texto", async (req, res) => {
 });
 
 // =======================
-// TRIAGEM JURÍDICA CRIMINAL (COM CONFIRMAÇÃO DE NOME E URGÊNCIA BLINDADA)
+// TRIAGEM JURÍDICA CRIMINAL
 // =======================
 
 app.post("/chat/triagem", async (req, res) => {
@@ -209,81 +267,97 @@ app.post("/chat/triagem", async (req, res) => {
         const historico = await carregarHistorico(dados.idConversa);
         await salvarMensagem(dados.idConversa, "Cliente", dados.conteudo, "Recebida");
 
+        const TEXTO_ENCERRAMENTO_PADRAO = "Perfeito! Informo que a triagem foi concluída com sucesso. Seus dados e relatórios foram salvos no painel. Por favor, feche esta aba e aguarde, pois um de nossos advogados entrará em contato em breve para dar o retorno.";
+
+        const mensagens = [
+            {
+                role: "system",
+                content: `
+Você é um ALGORITMO DE TRIAGEM automatizado. Você NÃO é humano e NÃO possui sentimentos.
+Seu único objetivo é coletar dados para preencher o relatório interno estruturado.
+
+TEXTO PADRÃO DE ENCERRAMENTO:
+"${TEXTO_ENCERRAMENTO_PADRAO}"
+
+REGRAS CRÍTICAS DE PARADA:
+1. Se o usuário já informou o Nome, Caso, se há Audiência, se há Sentença e Local, a triagem ACABOU. Você DEVE responder EXATAMENTE e APENAS o TEXTO PADRÃO DE ENCERRAMENTO.
+2. Se o usuário exigir falar com um advogado (ex: "quero falar com o advogado") e já tiver dado detalhes do problema, você DEVE responder EXATAMENTE e APENAS o TEXTO PADRÃO DE ENCERRAMENTO. 
+3. Não adicione nenhuma saudação, justificativa ou introdução antes ou depois do texto padrão.
+
+MECÂNICA DO NOME:
+- Assim que o usuário disser o nome dele, envie de volta: "Seu nome é [Nome], está correto?". Assim que ele disser "sim" ou confirmar, envie o nome limpo no campo "nomeConfirmadoESalvar". Caso contrário, deixe como null.
+
+CLASSIFICAÇÃO DE RISCO:
+- Defina "urgente" como true se o usuário relatar prisão em andamento, flagrante ou detenção recente em delegacia/presídio/DP. Caso contrário, false.
+
+Sua resposta DEVE ser estritamente este JSON:
+{
+  "mensagemParaOCliente": "Texto da sua pergunta atual ou o texto padrão de encerramento",
+  "nomeConfirmadoESalvar": "Nome limpo se confirmado, senão null",
+  "urgente": true ou false,
+  "coletaFinalizada": true ou false
+}
+`,
+            },
+            ...historico,
+            {
+                role: "user",
+                content: dados.conteudo,
+            },
+        ];
+
         const resposta = await ia.chat.completions.create({
             model: "llama-3.3-70b-versatile",
             response_format: { type: "json_object" },
-            messages: [
-                {
-                    role: "system",
-                    content: `
-Voce e uma assistente virtual focada EXCLUSIVAMENTE em Triagem Juridica Criminal.
-Seu objetivo e coletar dados basicos do usuario de maneira segura.
-
-O cliente atual no sistema se chama: "${dados.cliente.nome}" (ID: ${dados.idCliente}).
-
-REGRA DO NOME (MECANICA DE CONFIRMACAO):
-1. No inicio da conversa, pergunte o nome do usuario.
-2. Assim que o usuario responder o nome dele, na proxima mensagem voce DEVE obrigatoriamente validar enviando o nome de volta para ele confirmar.
-   Exemplo:
-   IA: "Qual o seu nome?"
-   Usuario: "Meu nome e Luiz e estou preso."
-   IA: "Seu nome e: Luiz, esta correto?"
-3. Se o usuario disser "nao", pergunte novamente e repita o processo de confirmacao.
-4. Enquanto o usuario nao disser "sim" ou confirmar de forma clara que o nome exibido na tela esta correto, a chave "nomeConfirmadoESalvar" DEVE ser null.
-5. Somente quando o usuario confirmar explicitamente que aquele nome esta correto (ex: "sim", "correto", "isso"), voce atribui o nome limpo na chave "nomeConfirmadoESalvar".
-
-REGRA CRITICA DE URGENGIA:
-Avalie minuciosamente o relato do cliente. Voce DEVE classificar a chave "urgente" como true se o usuario relatar:
-- Que esta atualmente na DELEGACIA (ou DP).
-- Que foi PRESO HÁ POUCO TEMPO (horas, hoje, agora).
-- Que foi preso em FLAGRANTE.
-- Qualquer evento de prisao ocorrendo no momento.
-Caso contrario, classifique como false.
-
-PERGUNTAS RESTANTES (Apos o nome estar confirmado, faça uma por vez):
-- Tipo do caso/problema relatado
-- Ja teve audiencia?
-- Ja possui sentenca?
-- Onde esta preso e ha quanto tempo?
-
-ENCERRAMENTO OBRIGATORIO:
-Ao obter todas as informacoes, use exatamente este texto:
-"Perfeito! Informo que a triagem foi concluída com sucesso. Seus dados e relatórios foram salvos no painel. Por favor, feche esta aba e aguarde, pois um de nossos advogados entrará em contato em breve para dar o retorno."
-
-Sua resposta DEVE ser estritamente este objeto JSON:
-{
-  "mensagemParaOCliente": "O texto da sua resposta/pergunta atual para o cliente",
-  "nomeConfirmadoESalvar": "O nome limpo APENAS se o usuario confirmou que esta correto na interacao atual. Caso contrario, envie null",
-  "urgente": true ou false
-}
-`,
-                },
-                ...historico,
-                { role: "user", content: dados.conteudo },
-            ],
+            messages: mensagens,
         });
 
         const resultadoIa = JSON.parse(resposta.choices[0].message.content);
-        const textoParaCliente = resultadoIa.mensagemParaOCliente;
-        const nomeConfirmado = resultadoIa.nomeConfirmadoESalvar;
-        const ehUrgente = resultadoIa.urgente;
+        let textoParaCliente = resultadoIa.mensagemParaOCliente;
+        let nomeConfirmado = resultadoIa.nomeConfirmadoESalvar;
+        const urgenteIA = resultadoIa.urgente === true;
+        const finalizadoPelaIA = resultadoIa.coletaFinalizada === true;
 
-        // 1. Só altera o nome no banco se ele foi explicitly confirmado pelo usuário
+        const urgenteServidor =
+            detectarUrgencia(dados.conteudo) ||
+            detectarUrgencia(textoParaCliente);
+
+        const ehUrgente = urgenteIA || urgenteServidor;
+
+        // --- INTERCEPÇÃO PROGRAMÁTICA CONTRA ALUCINAÇÕES ---
+        const termosDeEncerramento = ["triagem foi concluida", "chamar o advogado", "encaminhar para um advogado", "aguarde um momento", "assistente virtual", "mientras"];
+        const detectouFimNoTexto = termosDeEncerramento.some(termo => 
+            textoParaCliente.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(termo)
+        );
+
+        if (finalizadoPelaIA || detectouFimNoTexto) {
+            textoParaCliente = TEXTO_ENCERRAMENTO_PADRAO;
+        }
+        // ----------------------------------------------------
+
+        // 1. Atualiza o nome se confirmado pela IA
         if (nomeConfirmado && nomeConfirmado.trim().toLowerCase() !== "null") {
             await db.query(
                 "UPDATE cliente SET nome = $1 WHERE id_cliente = $2",
                 [nomeConfirmado.trim(), dados.idCliente]
             );
-            console.log(`[DATABASE] Nome validado e atualizado para: ${nomeConfirmado}`);
+            console.log(`[DATABASE] Nome atualizado para: ${nomeConfirmado}`);
         }
 
-        // 2. Aciona o alerta de emergência máxima se a pessoa estiver na delegacia ou flagrante
-        if (ehUrgente === true) {
+        // 2. CORREÇÃO DA QUERY DE URGÊNCIA (Removida a trava fixa de status anterior)
+        // Se em qualquer momento for detectado como urgente, força "Emergencia_max" no banco.
+        if (ehUrgente) {
             await db.query(
-                "UPDATE cliente SET status_lead = 'Emergencia_max' WHERE id_cliente = $1 AND status_lead = 'Em_triagem'",
+                "UPDATE cliente SET status_lead = 'Emergencia_max' WHERE id_cliente = $1",
                 [dados.idCliente]
             );
-            console.log(`[DATABASE] Alerta acionado! Lead ${dados.idCliente} classificado como URGENTE.`);
+            console.log(`[DATABASE] Lead ${dados.idCliente} atualizado/mantido como Emergencia_max`);
+        } else {
+            // Só muda para normal se não estiver definido como emergência
+            await db.query(
+                "UPDATE cliente SET status_lead = 'Normal' WHERE id_cliente = $1 AND status_lead = 'Em_triagem'",
+                [dados.idCliente]
+            );
         }
 
         await salvarMensagem(dados.idConversa, "Chatbot", textoParaCliente, "Processada");
@@ -326,7 +400,7 @@ app.post("/chat/limpar", async (req, res) => {
             WHERE id_conversa IN (
                 SELECT id_conversa
                 FROM conversa
-                WHERE id_cliente = $1 AND status = 'Aberta'
+                WHERE id_cliente = $1
             )
             `,
             [idCliente],

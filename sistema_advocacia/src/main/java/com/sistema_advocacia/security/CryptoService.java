@@ -19,4 +19,9 @@ public class CryptoService {
     public boolean matches(String senhaPura, String senhaCriptografada) {
         return passwordEncoder.matches(senhaPura, senhaCriptografada);
     }
+
+    public static void main(String[] args) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        System.out.println(encoder.encode("admin123"));
+    }
 }
