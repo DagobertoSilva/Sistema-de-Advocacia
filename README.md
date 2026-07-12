@@ -185,22 +185,6 @@ slides/
 
 | Integrante | Responsabilidade |
 |------------|------------------|
-
-Francisco Guilherme De Sousa Martins
-| Francisco Dagoberto Silva Dos Santos | Documentação |
-| Nivea Hayane Gomes Miranda | Modelagem de Dados
-| Diogo Ditorres Alexandre | Banco de Dados |
-| Luiz Matheus Sales Souza | Backend |
-Rafael Alves Rodrigues
-Leticia De Castro Silva
-Gisele Gomes Costa
-
----
-
-# Equipe
-
-| Integrante | Responsabilidade |
-|------------|------------------|
 | Diogo Ditorres Alexandre | Banco de Dados |
 | Francisco Dagoberto Silva Dos Santos | Documentação |
 | Francisco Guilherme De Sousa Martins | Frontend |
