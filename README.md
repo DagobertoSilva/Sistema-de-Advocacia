@@ -76,16 +76,11 @@ Caso concluído
 ## Backend
 
 - Java
-- Spring Boot
-- Spring Security
-- JPA / Hibernate
-- JWT
 
 ## Frontend
 
-- React
-- Vite
-- Axios
+- JavaScript
+- HTML
 
 ## Banco de Dados
 
@@ -94,6 +89,14 @@ Caso concluído
 ## Documentação
 
 - 
+
+## Scripts / Automação
+
+- Shell
+
+## Infraestrutura / DevOps:
+
+- Dockerfile
 
 ---
 
