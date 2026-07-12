@@ -1,4 +1,4 @@
-# Sitema de Advocacia
+# Sistema de Advocacia
 
 Sistema web desenvolvido para auxiliar escritórios de advocacia no gerenciamento de atendimentos, utilizando Inteligência Artificial para realizar a triagem inicial dos clientes, classificar a prioridade dos casos e auxiliar os advogados durante o fluxo de atendimento.
 
