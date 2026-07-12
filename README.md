@@ -197,6 +197,22 @@ Gisele Gomes Costa
 
 ---
 
+# Equipe
+
+| Integrante | Responsabilidade |
+|------------|------------------|
+| Diogo Ditorres Alexandre | Banco de Dados |
+| Francisco Dagoberto Silva Dos Santos | Documentação |
+| Francisco Guilherme De Sousa Martins | Frontend |
+| Gisele Gomes Costa | Documentação |
+| Leticia De Castro Silva | Frontend |
+| Luiz Matheus Sales Souza | Backend |
+| Nivea Hayane Gomes Miranda | Modelagem Banco de Dados |
+| Rafael Alves Rodrigues | Backend |
+
+---
+---
+
 # Licença
 
 Projeto desenvolvido para fins acadêmicos - Projeto Integrador III.
