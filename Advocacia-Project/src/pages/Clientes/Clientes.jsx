@@ -5,6 +5,9 @@ export default function Clientes() {
   const [clientesFiltrados, setClientesFiltrados] = useState([]);
   const [termoPesquisa, setTermoPesquisa] = useState("");
   const [carregando, setCarregando] = useState(true);
+  const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroServico, setFiltroServico] = useState("");
+  const [filtroPerfil, setFiltroPerfil] = useState("");
 
   useEffect(() => {
     const buscarDados = async () => {
@@ -33,17 +36,38 @@ export default function Clientes() {
     buscarDados();
   }, []);
 
-  const handlePesquisaChange = (e) => {
-    const valor = e.target.value;
-    setTermoPesquisa(valor);
+  useEffect(() => {
+    let resultado = clientes;
 
-    const filtrados = clientes.filter((c) =>
-      (c.nome || "").toLowerCase().includes(valor.toLowerCase()) ||
-      (c.numeroWhatsapp || "").includes(valor) ||
-      (c.cpf || "").includes(valor)
-    );
-    setClientesFiltrados(filtrados);
-  };
+    if (termoPesquisa) {
+      const valor = termoPesquisa.toLowerCase();
+      resultado = resultado.filter((c) =>
+        (c.nome || "").toLowerCase().includes(valor) ||
+        (c.numeroWhatsapp || "").includes(valor) ||
+        (c.cpf || "").includes(valor)
+      );
+    }
+
+    if (filtroStatus) {
+      resultado = resultado.filter(c => c.statusLead === filtroStatus);
+    }
+
+    if (filtroServico) {
+      resultado = resultado.filter(c => 
+        String(c.servicoJuridico_id) === filtroServico || 
+        String(c.servicoJuridicoId) === filtroServico
+      );
+    }
+
+    if (filtroPerfil) {
+      resultado = resultado.filter(c => 
+        c.grau_escolaridade === filtroPerfil || 
+        c.perfil === filtroPerfil
+      );
+    }
+
+    setClientesFiltrados(resultado);
+  }, [termoPesquisa, filtroStatus, filtroServico, filtroPerfil, clientes]);
 
   if (carregando) {
     return <div style={{ padding: "30px", fontFamily: "sans-serif" }}>Carregando atendimentos...</div>;
@@ -52,12 +76,12 @@ export default function Clientes() {
   return (
     <div style={{ padding: "24px 30px", minHeight: "100vh", fontFamily: "sans-serif", boxSizing: "border-box" }}>
       
-      <div style={{ marginBottom: "25px", maxWidth: "450px" }}>
+      <div style={{ display: "flex", gap: "15px", marginBottom: "25px", flexWrap: "wrap", alignItems: "center" }}>
         <input
           type="text"
           placeholder="Buscar cliente por nome, WhatsApp ou CPF..."
           value={termoPesquisa}
-          onChange={handlePesquisaChange}
+          onChange={(e) => setTermoPesquisa(e.target.value)}
           style={{
             width: "100%",
             padding: "12px 16px",
@@ -70,6 +94,40 @@ export default function Clientes() {
             transition: "all 0.2s ease"
           }}
         />
+        <select
+          value={filtroStatus}
+          onChange={(e) => setFiltroStatus(e.target.value)}
+          style={{ padding: "12px", borderRadius: "12px", border: "1px solid #cbd5e1", outline: "none", backgroundColor: "white", cursor: "pointer", fontSize: "0.95rem" }}
+        >
+          <option value="">Todos os Status</option>
+          <option value="Em_triagem">Em Triagem</option>
+          <option value="Emergencia_max">Emergência Máxima</option>
+          <option value="Aguardando_retorno">Aguardando Retorno</option>
+          <option value="Contrato_fechado">Contrato Fechado</option>
+          <option value="Encerrado">Encerrado</option>
+        </select>
+
+        <select
+          value={filtroServico}
+          onChange={(e) => setFiltroServico(e.target.value)}
+          style={{ padding: "12px", borderRadius: "12px", border: "1px solid #cbd5e1", outline: "none", backgroundColor: "white", cursor: "pointer", fontSize: "0.95rem" }}
+        >
+          <option value="">Todos os Serviços</option>
+          <option value="1">Prisão em Flagrante</option>
+          <option value="2">Habeas Corpus</option>
+          <option value="3">Acompanhamento Processual</option>
+        </select>
+
+        <select
+          value={filtroPerfil}
+          onChange={(e) => setFiltroPerfil(e.target.value)}
+          style={{ padding: "12px", borderRadius: "12px", border: "1px solid #cbd5e1", outline: "none", backgroundColor: "white", cursor: "pointer", fontSize: "0.95rem" }}
+        >
+          <option value="">Todos os Perfis</option>
+          <option value="Ensino Fundamental">Ensino Fundamental</option>
+          <option value="Ensino Médio">Ensino Médio</option>
+          <option value="Ensino Superior">Ensino Superior</option>
+        </select>
       </div>
 
       <div style={{
