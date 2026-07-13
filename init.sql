@@ -114,6 +114,13 @@ INSERT INTO perfilAcesso (nome_perfil, descricao) VALUES
 ('Administrador', 'Acesso total ao sistema e configurações'),
 ('Atendente', 'Acesso a conversas e andamentos processuais');
 
+
+INSERT INTO perfilacesso (id_perfil, nome_perfil, descricao) VALUES (1, 'ADMIN', 'Administrador do Sistema') ON CONFLICT (id_perfil) DO NOTHING;
+INSERT INTO Usuario (id_perfil, nome, email, senha_hash, telefone, ativo) VALUES
+(1, 'Administrador', 'admin@admin.com', '$2a$10$y1IuYeLlyJRYTrGghr49LOuEuC8IXrUToVF4OehulxBWr3ZBfnmM2', '85999999999', TRUE);
+
+
+
 INSERT INTO Usuario (id_perfil, nome, email, senha_hash, telefone, ativo) VALUES
 (1, 'Dr. João Silva', 'joao.silva@advocacia.com', 'hash_senha_segura', '85999999999', TRUE);
 
