@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 BASE_URL="${BASE_URL:-http://localhost:8080}"
-TEST_ID=$(date +%s)
+CHAT_API_URL="${CHAT_API_URL:-http://localhost:3000}"
+# Combina tempo, PID e aleatoriedade para que cada execução crie dados novos.
+TEST_ID="$(date +%s)-$$-$RANDOM"
+TEST_NUM=$(( ( $(date +%s) + $$ + RANDOM ) % 100000000 ))
 USUARIO_LOGIN="matheus.teste.${TEST_ID}@advocacia.com"
-CLIENTE_CPF=$(printf "123%08d" "${TEST_ID: -8}")
-CLIENTE_WHATSAPP="5588${TEST_ID: -8}"
+CLIENTE_CPF=$(printf "123%08d" "$TEST_NUM")
+CLIENTE_WHATSAPP="5588$(printf '%08d' "$TEST_NUM")"
 
 request() {
   local method="$1"
@@ -30,6 +33,10 @@ request() {
 
   HTTP_BODY=$(cat "$tmp_file")
   rm -f "$tmp_file"
+}
+
+extrair_id() {
+  printf '%s' "$1" | sed -n 's/.*"id"[[:space:]]*:[[:space:]]*\([0-9][0-9]*\).*/\1/p' | head -1
 }
 
 echo "=================================================="
@@ -108,27 +115,68 @@ JSON
 request POST "$BASE_URL/api/clientes" "$CLIENTE_BODY" "Authorization: Bearer $TOKEN"
 echo "HTTP: $HTTP_STATUS"
 echo "Resposta: $HTTP_BODY"
+CLIENTE_ID=$(extrair_id "$HTTP_BODY")
+
+if [ -z "$CLIENTE_ID" ]; then
+  echo "Nao foi possivel identificar o id do cliente criado."
+  exit 1
+fi
 echo ""
 
 echo "=================================================="
-echo "5. TESTANDO INTEGRACAO COM API-CHAT..."
+echo "5. TESTANDO URGENCIA SEM HISTORICO..."
 echo "=================================================="
-CHAT_BODY='{
-    "mensagem": "Meu nome e Matheus e preciso de ajuda em um caso criminal."
-  }'
-
-request POST "$BASE_URL/api/chat/triagem" "$CHAT_BODY"
+request GET "$CHAT_API_URL/clientes/$CLIENTE_ID/urgencia"
 echo "HTTP: $HTTP_STATUS"
 echo "Resposta: $HTTP_BODY"
 
 if [ "$HTTP_STATUS" != "200" ]; then
-  echo "Aviso: a etapa do chat depende da API atualizada, do container api-chat e da GROQ_API_KEY."
+  echo "Aviso: esta etapa depende do api-chat em $CHAT_API_URL e do mesmo banco de dados da API principal."
+fi
+echo ""
+
+echo "=================================================="
+echo "6. TESTANDO INTEGRACAO EXISTENTE VIA BACKEND..."
+echo "=================================================="
+request POST "$BASE_URL/api/chat/triagem" "{
+    \"idCliente\": $CLIENTE_ID,
+    \"mensagem\": \"Meu nome e Matheus Teste e preciso de ajuda em um caso criminal.\"
+}"
+echo "HTTP: $HTTP_STATUS"
+echo "Resposta: $HTTP_BODY"
+
+if [ "$HTTP_STATUS" != "200" ]; then
+  echo "Aviso: esta etapa depende do api-chat, do container correspondente e da GROQ_API_KEY."
+fi
+echo ""
+
+echo "=================================================="
+echo "7. TESTANDO URGENCIA ALTA DIRETAMENTE NO API-CHAT..."
+echo "=================================================="
+CHAT_BODY=$(cat <<JSON
+{
+    "numeroWhatsapp": "$CLIENTE_WHATSAPP",
+    "mensagem": "Meu nome e Matheus Teste. Meu irmao acabou de ser preso em flagrante e esta na delegacia."
+}
+JSON
+)
+
+request POST "$CHAT_API_URL/chat/triagem" "$CHAT_BODY"
+echo "HTTP: $HTTP_STATUS"
+echo "Resposta: $HTTP_BODY"
+
+if [ "$HTTP_STATUS" != "200" ]; then
+  echo "Aviso: a etapa depende do api-chat e da GROQ_API_KEY."
+else
+  request GET "$CHAT_API_URL/clientes/$CLIENTE_ID/urgencia"
+  echo "HTTP urgencia: $HTTP_STATUS"
+  echo "Resposta urgencia: $HTTP_BODY"
 fi
 echo ""
 
 echo ""
 echo "=================================================="
-echo "5. TESTANDO ISOLAMENTO DE CONVERSAS COM MULTIPLOS CLIENTES"
+echo "8. TESTANDO ISOLAMENTO DE CONVERSAS COM MULTIPLOS CLIENTES"
 echo "=================================================="
 
 criar_cliente() {
@@ -158,7 +206,7 @@ JSON
   echo "$HTTP_BODY" | grep -o '"id":[0-9]*' | head -1 | cut -d':' -f2
 }
 
-BASE_TESTE=$(date +%s)
+BASE_TESTE=$TEST_NUM
 
 ID_JOAO=$(criar_cliente \
   "Joao Silva" \

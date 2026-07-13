@@ -113,11 +113,130 @@ function detectarUrgencia(texto) {
     return termos.some((termo) => t.includes(termo));
 }
 
+function normalizarNivelUrgencia(nivel) {
+    if (!nivel) return null;
+
+    const valor = nivel.toString().trim().toLowerCase();
+    if (["alta", "alto", "emergencia", "emergencia_max"].includes(valor)) return "alta";
+    if (["normal", "media", "média", "medio", "médio"].includes(valor)) return "normal";
+    if (["baixa", "baixo"].includes(valor)) return "baixa";
+    return null;
+}
+
+function analisarNivelUrgencia(cliente, triagem, mensagens) {
+    const nivelTriagem = normalizarNivelUrgencia(triagem?.nivel_urgencia);
+    if (nivelTriagem) {
+        return {
+            nivel: nivelTriagem,
+            fonte: "triagem",
+            motivo: "Classificação registrada na triagem mais recente.",
+        };
+    }
+
+    if (cliente.status_lead === "Emergencia_max") {
+        return {
+            nivel: "alta",
+            fonte: "status_lead",
+            motivo: "O caso está marcado como emergência no cadastro.",
+        };
+    }
+
+    const textoDoCaso = [cliente.resumo_fatos, cliente.assunto_tipificado, ...mensagens]
+        .filter(Boolean)
+        .join(" ");
+
+    if (detectarUrgencia(textoDoCaso)) {
+        return {
+            nivel: "alta",
+            fonte: "historico",
+            motivo: "O histórico contém indícios de prisão, flagrante, detenção ou outra situação imediata.",
+        };
+    }
+
+    if (["Encerrado", "Contrato_fechado"].includes(cliente.status_lead)) {
+        return {
+            nivel: "baixa",
+            fonte: "status_lead",
+            motivo: "O caso consta como encerrado ou com contrato já fechado, sem sinal de emergência registrado.",
+        };
+    }
+
+    return {
+        nivel: "normal",
+        fonte: "historico",
+        motivo: "Há informações do caso, mas nenhum indício de emergência foi identificado.",
+    };
+}
+
 const TEXTO_ENCERRAMENTO_PADRAO = "Perfeito! Informo que a triagem foi concluída com sucesso. Seus dados e relatórios foram salvos no painel. Por favor, feche esta aba e aguarde, pois um de nossos advogados entrará em contato em breve para dar o retorno.";
 
 // =======================
 // FLUXO DE TRIAGEM PRINCIPAL (Mapeado por número de WhatsApp)
 // =======================
+app.get("/clientes/:id/urgencia", async (req, res) => {
+    const idCliente = Number.parseInt(req.params.id, 10);
+
+    if (!Number.isInteger(idCliente) || idCliente <= 0) {
+        return res.status(400).json({ erro: "O id do cliente deve ser um número inteiro positivo." });
+    }
+
+    try {
+        const [clienteResultado, triagemResultado, mensagensResultado] = await Promise.all([
+            db.query(
+                "SELECT id_cliente, status_lead, assunto_tipificado, resumo_fatos FROM cliente WHERE id_cliente = $1",
+                [idCliente],
+            ),
+            db.query(
+                "SELECT nivel_urgencia FROM triagem WHERE id_cliente = $1 ORDER BY data_inicio DESC, id_triagem DESC LIMIT 1",
+                [idCliente],
+            ),
+            db.query(
+                `SELECT m.conteudo
+                 FROM mensagem m
+                 JOIN conversa c ON c.id_conversa = m.id_conversa
+                 WHERE c.id_cliente = $1 AND m.conteudo IS NOT NULL
+                 ORDER BY m.data_envio ASC`,
+                [idCliente],
+            ),
+        ]);
+
+        if (clienteResultado.rows.length === 0) {
+            return res.status(404).json({ erro: "Cliente não encontrado." });
+        }
+
+        const cliente = clienteResultado.rows[0];
+        const triagem = triagemResultado.rows[0];
+        const mensagens = mensagensResultado.rows.map(({ conteudo }) => conteudo);
+        const possuiHistorico = Boolean(
+            triagem || mensagens.length > 0 || cliente.resumo_fatos || cliente.assunto_tipificado
+        );
+
+        if (!possuiHistorico) {
+            return res.json({
+                idCliente,
+                possuiHistorico: false,
+                nivelUrgencia: null,
+                analise: "Não há histórico ou dados de triagem suficientes para classificar a urgência do caso.",
+            });
+        }
+
+        const analise = analisarNivelUrgencia(cliente, triagem, mensagens);
+        return res.json({
+            idCliente,
+            possuiHistorico: true,
+            nivelUrgencia: analise.nivel,
+            analise: analise.motivo,
+            fonte: analise.fonte,
+        });
+    } catch (erro) {
+        console.error("[URGENCIA]", erro);
+        return res.status(500).json({
+            erro: "Erro ao consultar a urgência do caso.",
+            detalhes: erro.message,
+        });
+    }
+});
+
 app.post("/chat/triagem", async (req, res) => {
     try {
         if (!verificarGroqConfigurada(res)) return;

@@ -1,3 +1,5 @@
 .env
 node_modules/
 target/
+sistema_advocacia/node_modules
+api_chat/node_modules
