@@ -70,11 +70,26 @@ public class ChatApiService {
             }
         }
 
-        // 1. Faz a chamada original para obter a resposta do Chatbot (IA)
-        ResponseEntity<Map<String, Object>> response = postJson("/chat/triagem", Map.of(
-                "idCliente", idCliente,
-                "mensagem", mensagem
-        ));
+        // O api-chat identifica a conversa pelo WhatsApp, nao pelo ID interno da API principal.
+        String numeroWhatsapp = clienteService.buscarPorId(idCliente)
+                .map(Cliente::getNumeroWhatsapp)
+                .orElse(null);
+
+        if (numeroWhatsapp == null || numeroWhatsapp.isBlank()) {
+            return ResponseEntity.badRequest().body(criarErro(
+                    "O cliente informado nao possui numero de WhatsApp.",
+                    HttpStatus.BAD_REQUEST.value(),
+                    null
+            ));
+        }
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("idCliente", idCliente);
+        payload.put("numeroWhatsapp", numeroWhatsapp);
+        payload.put("mensagem", mensagem);
+
+        // 1. Faz a chamada para obter a resposta do Chatbot (IA)
+        ResponseEntity<Map<String, Object>> response = postJson("/chat/triagem", payload);
 
         // 2. Analisa a RESPOSTA DO BOT que está voltando da API externa
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
